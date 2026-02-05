@@ -157,7 +157,7 @@ for _ in range(100):
 
     W_b = Total_energy(W_0*g) / energy_density
 
-    W_0 = (payload_mass / (1 - (W_b/W_0) - a*W_0**L)).item()
+    W_0 = (payload_mass / (1 - (1.2*W_b/W_0) - a*W_0**L)).item()
 
 
 final_weight = Weight_array[-1]
