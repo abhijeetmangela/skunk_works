@@ -196,11 +196,16 @@ os.makedirs("figures", exist_ok=True)
 # ---------------------------------------------------------
 # Convergence Plot
 # ---------------------------------------------------------
+
+iters = list(range(1, len(Weight_array) + 1))
+
 plt.figure(figsize=(8, 5))
 plt.plot(range(len(Weight_array)), Weight_array, 'o-')
 plt.xlabel("Iteration")
 plt.ylabel("Weight (kg)")
 plt.title("Weight Convergence")
+plt.annotate(f'{final_weight:.3f} kg', xy=(iters[-1], final_weight), xytext=(-60, 8), textcoords='offset points',
+                 arrowprops=dict(arrowstyle='->', color='tab:blue'), fontsize=10, color='tab:blue')
 plt.grid(True)
 # plt.show()
 
