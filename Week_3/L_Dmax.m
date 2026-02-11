@@ -1,3 +1,6 @@
+%% (L/D)max estimation of similar UAVs
+
+%% AUTHOR = MONISHA VIJAYAN (AE25M037) 
 % UAV Names
 e=[];
 Name = {
@@ -20,6 +23,10 @@ Name = {
 MTOW = [ ...
     7.5 11.5 8.6 12.0 12.0 13.0 14.0 15.0 ...
     18.0 7.0 9.5 7.0 12.5 6.0 ];
+% Wing span(m)
+b = [...
+    2.1 2.43 1.95 2.5 2.4 2.5 2.53 2.5 ...
+    1.78 2.1 3 1.95 2 1.8];
 % Wing area (m^2)
 Area = [ ...
     0.50 0.65 0.46 0.52 0.96 0.50 0.56 0.50 ...
@@ -36,6 +43,20 @@ hcruise = [ ...
 vcruise = [ ...
     17.00 19.44 20.00 23.33 26.39 22 21.00 ...
     25.00 24.00 18.5 18.06 18 20 20];
+%Swet/Sref 
+sratio =[...
+    3.7 3.7 3.7 3.4 2.20 2.3 2.20 2.20...
+    3.6 3.7 2.3 3.6 3.6 3.7];
+swet=[];
+ARwet=[];
+for i = 1:length(sratio)
+    swt=sratio(i)*Area(i);
+    swet(end+1)=swt;
+    ARwt=(b(i)^2)/swet(i);
+    ARwet(end+1)=ARwt;
+end
+
+
 %Planform type
 Planform = {
     'Rectangular'
@@ -83,7 +104,7 @@ rho0 = 1.225;
 L = 0.0065;               
 R = 287.05;               
 g = 9.80665;              
-
+%------------------------------------------------------------------------
 %Density Calculation
 for i = 1:length(h)
     if ~isnan(h(i))
@@ -93,7 +114,7 @@ for i = 1:length(h)
 end
 
 %disp(rho)
-
+%------------------------------------------------------------------------
 %L/D max calculation
 L_Dm = [];
 
@@ -102,9 +123,22 @@ for i=1:length(MTOW)
     L_D=(pi*e(i)*AR(i))/(2*Cl);
     L_Dm(end+1)=L_D;
 end
+%------------------------------------------------------------------------
+%for our UAV
+sratio1=3.6;
+Sref=0.413;
+swet=sratio1*Sref;
+ARwsk =4/swet;
+disp(sqrt(ARwsk))
+%------------------------------------------------------------------------
+%[AR_sorted, idx] = sort(sqrt(ARwet));
+%L_dm_sorted = L_Dm(idx);
+x= linspace(1,4,100);
+fit =polyfit(ARwet,L_Dm,1)
+y=polyval(fit,x)
+figure
+scatter(sqrt(ARwet),L_Dm,40,"green","o",'LineWidth',1.5)
+hold on
+plot(x,y)
 
 
-[AR_sorted, idx] = sort(AR);
-L_dm_sorted = L_Dm(idx);
-disp(AR_sorted)
-disp(L_dm_sorted)
