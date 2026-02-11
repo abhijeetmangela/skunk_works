@@ -186,6 +186,11 @@ print("Cruise  :", Power_cruise(V_cruise, final_weight*g))
 print("Descent :", Power_descent(V_des, gamma_des, final_weight*g))
 print("Loiter  :", Power_loiter(V_loiter, final_weight*g))
 
+print("Climb Thrust T_W  :",Power_climb(V_climb, gamma_climb, final_weight*g)/(V_climb*g*final_weight))
+print("Cruise Thrust T_W:", Power_cruise(V_cruise, final_weight*g)/(V_climb*g*final_weight))
+print("Descent Thrust T_W:", Power_descent(V_des, gamma_des, final_weight*g)/(V_climb*g*final_weight))
+print("Loiter Thrust T_W:", Power_loiter(V_loiter, final_weight*g)/(V_climb*g*(final_weight-payload_mass_drop)))
+
 
 # =========================================================
 # ----------------- PLOTS --------------------------------

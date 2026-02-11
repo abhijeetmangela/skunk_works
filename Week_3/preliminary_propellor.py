@@ -101,9 +101,9 @@ def size_prop_motor(
 if __name__ == "__main__":
 
     size_prop_motor(
-        mtow_kg=7,          # kg
-        T_W=0.048,            # thrust-to-weight
+        mtow_kg=6.896,          # kg
+        T_W=0.08468237455864157,            # thrust-to-weight
         cruise_speed=22,    # m/s
-        battery_voltage=14.8,  # 4S LiPo
+        battery_voltage= 10, # 14.8  # 4S LiPo
         beta=1.6
     )
