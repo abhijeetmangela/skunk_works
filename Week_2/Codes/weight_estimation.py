@@ -176,6 +176,7 @@ print(f"Final MTOW        : {final_weight:.3f} kg")
 print(f"Battery weight    : {Battery_weight:.3f} kg")
 print(f"Empty weight      : {Empty_weight:.3f} kg")
 print(f"Payload           : {Payload:.3f} kg")
+print(f"Total Energy      : {Total_energy(final_weight*g):.3f} Joules")
 
 
 # Power reporting
