@@ -1,0 +1,6 @@
+rho = 1.225
+v = 18.5
+L = 0.2653
+mu = 1.8e-5
+Renyolds number = rho*v*L/mu
+
