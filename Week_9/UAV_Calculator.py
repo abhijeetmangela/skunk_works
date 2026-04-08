@@ -15,8 +15,8 @@ class UAVPerformanceCalculator:
         self.Mach = self.V_cruise / 349.02  # Cruise Mach number
 
         self.W_o = 6.5 * 9.81  # Aircraft total weight in Newtons (~10kg)
-        self.S_ref = 0.45  # Wing reference area (m^2)
-        self.AR = 8.87  # Aspect Ratio
+        self.S_ref = 0.5307  # Wing reference area (m^2)
+        self.AR = 7.53  # Aspect Ratio
         self.e = 0.8  # Oswald Efficiency factor
 
         # Battery & Propulsion (from report)
