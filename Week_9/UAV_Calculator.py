@@ -21,7 +21,7 @@ class UAVPerformanceCalculator:
 
         # Battery & Propulsion (from report)
         self.P_av = 490.6  # Max Power Available (W)
-        self.Energy_Bat = 1.75e6  # Battery Energy (Joules, 1.75 MJ)
+        self.Energy_Bat = 0.959e6  # Battery Energy (Joules, 1.75 MJ)
         self.eta_p = 0.7  # Propeller efficiency
         self.eta_m = 0.7  # Motor efficiency
         self.eta_b = 0.95  # Battery efficiency
@@ -206,6 +206,7 @@ class UAVPerformanceCalculator:
         plt.grid(True)
         plt.legend()
         plt.show()
+        plt.savefig("Power_vs_Velocity.png", dpi=300)
 
         # 2. ROC vs Velocity
         ROC = (self.P_av - P_req) / self.W_o
@@ -218,6 +219,7 @@ class UAVPerformanceCalculator:
         plt.ylim(0, 5)
         plt.grid(True)
         plt.show()
+        plt.savefig("ROC_vs_Velocity.png", dpi=300)
 
         # 3. Drag Polar
         CL_arr = np.linspace(0, 1.4, 100)
@@ -232,6 +234,7 @@ class UAVPerformanceCalculator:
         plt.ylim(0, 1.6)
         plt.grid(True)
         plt.show()
+        plt.savefig("Drag_Polar.png", dpi=300)
 
         # 4. V-n Diagram
         V_stall_pos = np.sqrt(
