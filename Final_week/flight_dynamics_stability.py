@@ -590,7 +590,7 @@ def ga_aircraft():
     # ─────────────────────────────────────────────────────
     # SUMMARY TABLE
     # ─────────────────────────────────────────────────────
-    section_header("GA AIRCRAFT – SUMMARY OF RESULTS")
+    section_header("AIRCRAFT – SUMMARY OF RESULTS")
     results = {
         "Trim AoA (deg)"            : alpha_trim_deg,
         "Trim Speed V* (m/s)"       : V_trim,
@@ -903,7 +903,7 @@ if __name__ == "__main__":
 
     ga_aircraft()
     print("\n\n")
-    airship()
+    # airship()
 
     print("\n" + "=" * 60)
     print("  ANALYSIS COMPLETE")
