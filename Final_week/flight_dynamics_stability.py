@@ -2,8 +2,7 @@
 ============================================================
   Flight Dynamics & Stability Analysis
   Based on: Chapter 9 Appendix – Case Studies
-  Case 1 : GA Aircraft (Piper PA-32-300 Cherokee-like)
-  Case 2 : Gertler-shape Stratospheric Airship
+  Case 1 : UAV aircraft.
 ============================================================
 All formulas are taken directly from the supplied PDF.
 No external formulas have been introduced.
@@ -32,7 +31,7 @@ def sub_header(title):
 # ╚══════════════════════════════════════════════════════════╝
 
 def ga_aircraft():
-    section_header("CASE 1 – GA AIRCRAFT (Piper PA-32-300 Type)")
+    section_header("CASE 1 – UAV")
 
     # ─────────────────────────────────────────────────────
     # (A) INPUT PARAMETERS
@@ -41,65 +40,65 @@ def ga_aircraft():
 
     # ── Geometry ──────────────────────────────────────────
     g        = 9.81          # m/s^2  – gravitational acceleration
-    S_w      = 16.35         # m^2   – wing planform (reference) area
-    b_w      = 10.75         # m     – wing span
-    c_r      = 2.02          # m     – wing root chord (NACA 23018)
-    c_t      = 1.01          # m     – wing tip chord  (NACA 23012)
+    S_w      = 0.5307         # m^2   – wing planform (reference) area
+    b_w      = 2         # m     – wing span
+    c_r      = 0.2653          # m     – wing root chord (NACA 23018)
+    c_t      = 0.2650          # m     – wing tip chord  (NACA 23012)
     lam      = c_t / c_r    # taper ratio  (= 0.5)
-    Lambda_c4_deg = 5.38     # deg   – wing quarter-chord sweep angle
-    Gamma_deg     = 5.0      # deg   – wing dihedral angle
-    i_w      = 0.0           # deg   – wing incidence setting angle
+    Lambda_c4_deg = 0     # deg   – wing quarter-chord sweep angle
+    Gamma_deg     = 0     # deg   – wing dihedral angle
+    i_w      = 3           # deg   – wing incidence setting angle
 
-    S_HT     = 3.45          # m^2   – horizontal tail planform area
-    AR_HT    = 4.0           # –     – HT aspect ratio
-    i_t      = 0.0           # deg   – HT incidence setting angle
-    X_AC_HT  = 7.62          # m     – HT aerodynamic-centre from nose
+    S_HT     = 0.1327          # m^2   – horizontal tail planform area
+    AR_HT    = 4.5           # –     – HT aspect ratio
+    i_t      = -0.423           # deg   – HT incidence setting angle
+    X_AC_HT  = 0.964          # m     – HT aerodynamic-centre from nose
 
-    S_VT     = 2.16          # m^2   – vertical tail planform area
+    S_VT     = 0.0478          # m^2   – vertical tail planform area
     AR_VT    = 1.5           # –     – VT aspect ratio
-    X_AC_VT  = 7.28          # m     – VT AC from nose
+    X_AC_VT  = 0.964          # m     – VT AC from nose
 
-    l_f      = 7.89          # m     – fuselage length
-    S_f      = 8.12          # m^2   – fuselage side projected area
-    D_f      = 1.37          # m     – max fuselage diameter
+    l_f      = 1.12          # m     – fuselage length
+    S_f      = 1.11          # m^2   – fuselage side projected area
+    D_f      = 2*(np.sqrt(0.3*0.25*1.2/np.pi))          # m     – max fuselage diameter
 
-    S_da     = 0.82          # m^2   – aileron surface area
-    l_da     = 2.15          # m     – aileron span
-    S_de     = 1.38          # m^2   – elevator surface area
-    S_dr     = 0.43          # m^2   – rudder surface area
+    S_da     = 0.05          # m^2   – aileron surface area
+    l_da     = 0.76          # m     – aileron span
+    S_de     = 0.04          # m^2   – elevator surface area
+    S_dr     = 0.01          # m^2   – rudder surface area
 
     # ── Mass & Inertia ────────────────────────────────────
-    m        = 1859.73       # kg    – aircraft mass
-    I_xx     = 3355.65       # kg·m² – roll inertia
-    I_yy     = 4180.57       # kg·m² – pitch inertia
-    I_zz     = 6140.66       # kg·m² – yaw inertia
+    m        = 6.298       # kg    – aircraft mass
+    I_xx     = 0.751       # kg·m² – roll inertia
+    I_yy     = 0.384       # kg·m² – pitch inertia
+    I_zz     = 1.045       # kg·m² – yaw inertia
 
-    X_CG     = 2.39          # m     – CG location from nose
+    X_CG     = 0.264          # m     – CG location from nose
 
     # ── Aerodynamic parameters ───────────────────────────
-    alpha_L0_deg = -1.1      # deg   – wing zero-lift AoA
-    Cm_ac_w      = -0.005    # –     – residual pitching moment at AC
-    SM           = 0.15      # –     – assumed static margin (15 %)
-    e_oswald     = 0.9       # –     – Oswald efficiency factor
-    C_D0         = 0.017     # –     – zero-lift drag coefficient
+    alpha_L0_deg = -3.5      # deg   – wing zero-lift AoA
+    Cm_ac_w      = -0.022    # –     – residual pitching moment at AC
+    SM           = 0.14      # –     – assumed static margin (15 %)
+    e_oswald     = 1       # –     – Oswald efficiency factor
+    C_D0         = 0.02873     # –     – zero-lift drag coefficient
     # Airfoil lift-curve slopes (rad⁻¹)
-    cl_alpha_w   = 5.73      # /rad  – NACA 23018 airfoil (0.1/deg)
+    cl_alpha_w   = 3.6107      # /rad  – NACA 23018 airfoil (0.1/deg)
     cl_alpha_HT  = 6.24      # /rad  – NACA 0012 (0.109/deg)
     cl_alpha_VT  = 6.24      # /rad  – NACA 0012
 
     # ── Flight conditions ─────────────────────────────────
     rho          = 1.22      # kg/m³ – air density at flight altitude
     a_sound      = 340.0     # m/s   – speed of sound
-    eta          = 0.95      # –     – dynamic pressure ratio at tail
+    eta          = 0.99      # –     – dynamic pressure ratio at tail
 
     # ── Engine/propeller data ─────────────────────────────
-    P_max        = 268452.0  # N·m/s – max engine power (360 hp)
-    N_blades     = 3         # –     – number of propeller blades
-    D_prop       = 1.99      # m     – propeller diameter
-    l_prop       = 2.39      # m     – prop disc to CG distance
+    P_max        = 450  # N·m/s – max engine power (360 hp)
+    N_blades     = 4         # –     – number of propeller blades
+    D_prop       = 0.3048      # m     – propeller diameter
+    l_prop       = 0.12957      # m     – prop disc to CG distance
 
     # vertical location of wing root q-chord above CG line (for lat-dir)
-    z_w          = 0.305     # m
+    z_w          = 0.06     # m
 
     print("  Inputs loaded.")
 
@@ -613,283 +612,6 @@ def ga_aircraft():
         print(f"  {k:<40s}: {v:.5f}")
 
 
-# ╔══════════════════════════════════════════════════════════╗
-# ║          CASE 2 – STRATOSPHERIC AIRSHIP                 ║
-# ╚══════════════════════════════════════════════════════════╝
-
-def airship():
-    section_header("CASE 2 – STRATOSPHERIC AIRSHIP (Gertler Shape)")
-
-    # ─────────────────────────────────────────────────────
-    # (A) INPUT PARAMETERS
-    # ─────────────────────────────────────────────────────
-    sub_header("A) Input Parameters")
-
-    g           = 9.81              # m/s²
-    rho_air     = 0.0767            # kg/m³  – 20 km altitude
-    u_star      = 15.0              # m/s    – trim forward speed
-
-    # Geometric / Hull
-    Vol         = 327160.0          # m³     – hull volume
-    l_hull      = 226.0             # m      – hull length
-    d_hull      = 56.5              # m      – hull max diameter
-
-    # CG & CB offsets from CV (body-fixed)
-    b_z         = 16.43             # m      – CB z-offset from CV
-    a_z         = 18.0              # m      – CG z-offset from CV
-    a_x         = 0.0               # m
-    b_x         = 0.0               # m
-
-    # Lamb's inertia ratios
-    k1          = 0.1
-    k2          = 0.9
-    k_prime     = 0.6
-
-    # Virtual (added) mass and inertia [kg / kg·m²]
-    m           = 25093.172
-    m_x         = 27602.492
-    m_y         = 43044.16
-    m_z         = 43044.16
-    J_xx        = 17400000.0
-    J_yy        = 245264282.0
-    J_zz        = J_yy
-    J_xz        = 1920000.0
-
-    print("  Inputs loaded.")
-
-    # ─────────────────────────────────────────────────────
-    # (B) DERIVED BUOYANCY
-    # ─────────────────────────────────────────────────────
-    sub_header("B) Buoyancy & Trim Condition")
-
-    B     = Vol * rho_air * g          # buoyancy force [N]
-    B_g   = B / g                      # B/g  = Vol * rho_air  [kg]
-
-    print(f"  Buoyancy  B   = {B:.2f} N")
-    print(f"  B/g           = {B_g:.3f} kg")
-    print(f"  Aircraft mass = {m:.3f} kg")
-    print(f"  (mg - B)/g    = {m - B_g:.4f} kg  → neutrally buoyant")
-
-    # Trim condition: θ* = 0, α* = 0, (mg-B)=0  →  T = D, L = 0
-    # ─────────────────────────────────────────────────────
-    # (C) STABILITY DERIVATIVES
-    # ─────────────────────────────────────────────────────
-    sub_header("C) Stability Derivatives (Empirical + Aero)")
-
-    # Axial damping terms (Lamb's relations)
-    Xu_emp  = -k1  * B_g                              # [N·s/m]
-    Yv_emp  = -k2  * B_g
-    Zw_emp  = Yv_emp
-    Mq_emp  = (-k_prime * B_g
-                * (l_hull**2 + d_hull**2) / 20)
-    Nr_emp  = Mq_emp
-
-    # Reference area for aerodynamic coefficients
-    S_ref   = Vol**(2/3)
-
-    # Aerodynamic derivatives (from PDF numerical example)
-    Ma_alpha = (rho_air * u_star**2 * Vol * (k2 - k1) * 2)   # PDF uses this form
-    # PDF exact formula:
-    M_alpha  = rho_air * u_star**2 * Vol * (k2 - k1) * 2     # Munk relation derivative
-    M_w      = M_alpha / u_star
-
-    Mq_aero  = (0.5 * rho_air * u_star**2 * Vol
-                * (-0.065))                           # C_mq1 = -0.065
-    Zq_aero  = (-0.5 * rho_air * u_star**2 * S_ref
-                * 0.021)                              # C_Lq1 = 0.021
-    Xu_aero  = -rho_air * u_star * S_ref * 0.03      # C_D* = 0.03
-    Zw_aero  = 0.5 * Xu_aero
-    M_theta  = m * g * (b_z - a_z)                   # restoring moment
-
-    # Lateral-directional aero derivatives
-    Y_beta_aero = (0.5 * rho_air * u_star**2 * S_ref
-                   * (-0.0109))                       # C_Ybeta
-    Yv_aero     = Y_beta_aero / u_star
-    Yr_aero     = (0.5 * rho_air * u_star**2 * S_ref
-                   * 0.021)                           # C_Yr
-    Lp_aero     = (0.5 * rho_air * u_star**2 * Vol
-                   * (-0.002))                        # C_lp
-    L_phi       = m * g * (b_z - a_z)                # same as M_theta
-    N_beta_aero = (0.5 * rho_air * u_star**2 * Vol
-                   * (-0.00251))
-    Nv_aero     = N_beta_aero / u_star
-
-    print(f"  Xu (Lamb)    = {Xu_emp:.2f}")
-    print(f"  Yv (Lamb)    = {Yv_emp:.2f}")
-    print(f"  Mq (Lamb)    = {Mq_emp:.2f}")
-    print(f"  M_alpha      = {M_alpha:.2f}")
-    print(f"  M_w          = {M_w:.2f}")
-    print(f"  M_theta      = {M_theta:.2f}")
-    print(f"  Xu (aero)    = {Xu_aero:.4f}")
-    print(f"  Zw (aero)    = {Zw_aero:.4f}")
-    print(f"  Zq (aero)    = {Zq_aero:.4f}")
-    print(f"  Mq (aero)    = {Mq_aero:.2f}")
-
-    # ─────────────────────────────────────────────────────
-    # (D) LONGITUDINAL MODES – MATRIX FORM  (Eq. 9.34)
-    # ─────────────────────────────────────────────────────
-    sub_header("D) Airship Longitudinal Dynamics (A_long, M_long)")
-
-    # Using values exactly from PDF numerical example (Sec. 9.2.5)
-    Xu_dot = -Xu_emp     # added mass contribution (PDF: X_u̇ = k1*B/g)
-    Mq_dot = -Mq_emp     # added inertia
-
-    # Coupling arm contributions at trim (a_z offset from CV to CG)
-    ma_z_Mw = m * a_z + M_w
-    ma_x_Mw = m * a_x + 0.0       # M_w term for x (≈0 here)
-
-    # Mass matrix M (4x4) – from PDF Eq. 9.35
-    # States: [Δu, Δw, Δq, Δθ]
-    Xq_dot = 0.0
-    Zq_dot = Zq_aero
-
-    M_long = np.array([
-        [m_x,                  0.0,
-         m * a_z - Xq_dot,    0.0],
-        [0.0,                  m_z,
-         -(m * a_x + Zq_aero), 0.0],
-        [m * a_z + M_w,       -(m * a_x),
-         J_yy,                 0.0],
-        [0.0,                  0.0,
-         0.0,                  1.0],
-    ])
-
-    # A matrix – from PDF Eq. 9.36 (trim: θ*=0, mg-B=0)
-    A_long = np.array([
-        [Xu_aero,    0.0,
-         0.0,        0.0],
-        [0.0,        Zw_aero,
-         m * u_star + Zq_aero,  0.0],
-        [0.0,        M_w,
-         Mq_aero - m * a_x * u_star,  M_theta],
-        [0.0,        0.0,
-         1.0,        0.0],
-    ])
-
-    print("\n  M_long =")
-    print(np.array2string(M_long, precision=2, suppress_small=False,
-                          formatter={'float_kind': lambda x: f"{x:15.2f}"}))
-    print("\n  A_long =")
-    print(np.array2string(A_long, precision=2, suppress_small=False,
-                          formatter={'float_kind': lambda x: f"{x:15.2f}"}))
-
-    # Eigenvalues of M^{-1} * A
-    M_inv    = np.linalg.inv(M_long)
-    sys_long = M_inv @ A_long
-    evals_long = np.linalg.eigvals(sys_long)
-
-    print("\n  Eigenvalues of M_long^{-1} * A_long:")
-    for ev in sorted(evals_long, key=lambda e: abs(e.imag), reverse=True):
-        stab = "STABLE" if ev.real < 0 else "UNSTABLE"
-        if abs(ev.imag) > 1e-6:
-            wn   = abs(ev)
-            zeta = -ev.real / wn
-            print(f"    λ = {ev.real:+.5f} ± j{abs(ev.imag):.5f}   "
-                  f"[{stab}]  omega_n={wn:.4f} rad/s, zeta={zeta:.4f}")
-        else:
-            print(f"    λ = {ev.real:+.6f}   [{stab}]")
-
-    # ─────────────────────────────────────────────────────
-    # (E) LATERAL-DIRECTIONAL MODES (Sec. 9.2.3)
-    # ─────────────────────────────────────────────────────
-    sub_header("E) Airship Lateral-Directional Dynamics (A_lat-dir, M_lat-dir)")
-
-    # States: [Δv, Δp, Δr, Δφ]
-    # From PDF Eq. 9.62 and 9.63 (trim: θ*=0, mg-B=0)
-    M_lat = np.array([
-        [m_y,              -(m * a_z - 0.0),  # Y_p_dot ≈ 0
-         m * a_x - Yr_aero, 0.0],
-        [-(m * a_z + 0.0),  J_xx,             # L_v_dot ≈ 0
-         -J_xz,             0.0],
-        [m * a_x - Nv_aero, -J_xz,
-         J_zz,              0.0],
-        [0.0,               0.0,
-         0.0,               1.0],
-    ])
-
-    A_lat = np.array([
-        [Yv_aero,           0.0,
-         Yr_aero - m * u_star,  0.0],
-        [0.0,               Lp_aero,
-         0.0 + m * a_z * u_star,  L_phi],
-        [Nv_aero,           0.0,
-         0.0 - m * a_x * u_star,  0.0],
-        [0.0,               1.0,
-         0.0,               0.0],
-    ])
-
-    print("\n  M_lat =")
-    print(np.array2string(M_lat, precision=2, suppress_small=False,
-                          formatter={'float_kind': lambda x: f"{x:15.2f}"}))
-    print("\n  A_lat =")
-    print(np.array2string(A_lat, precision=2, suppress_small=False,
-                          formatter={'float_kind': lambda x: f"{x:15.2f}"}))
-
-    M_lat_inv = np.linalg.inv(M_lat)
-    sys_lat   = M_lat_inv @ A_lat
-    evals_lat = np.linalg.eigvals(sys_lat)
-
-    print("\n  Eigenvalues of M_lat^{-1} * A_lat:")
-    for ev in sorted(evals_lat, key=lambda e: abs(e.imag), reverse=True):
-        stab = "STABLE" if ev.real < 0 else "UNSTABLE"
-        if abs(ev.imag) > 1e-6:
-            wn   = abs(ev)
-            zeta = -ev.real / wn
-            print(f"    λ = {ev.real:+.6f} ± j{abs(ev.imag):.6f}   "
-                  f"[{stab}]  omega_n={wn:.5f} rad/s, zeta={zeta:.5f}")
-        else:
-            print(f"    λ = {ev.real:+.7f}   [{stab}]")
-
-    # ─────────────────────────────────────────────────────
-    # APPROXIMATE MODE EXPRESSIONS (Sec. 9.2.2 / 9.2.3)
-    # ─────────────────────────────────────────────────────
-    sub_header("F) Approximate Airship Modal Expressions")
-
-    # Surge mode
-    lambda_surge = Xu_aero / m_x
-    print(f"  Surge mode λ  ≈ Xu/mx = {lambda_surge:.6f} /s "
-          f"  [{'STABLE' if lambda_surge < 0 else 'UNSTABLE'}]")
-
-    # Heave mode
-    lambda_heave = Zw_aero / m_z
-    print(f"  Heave mode λ  ≈ Zw/mz = {lambda_heave:.6f} /s "
-          f"  [{'STABLE' if lambda_heave < 0 else 'UNSTABLE'}]")
-
-    # Pitch pendulum (Eq. 9.57)
-    wn_pitch_sq = -(M_alpha + M_theta) / J_yy   # Mα is destab, Mθ stabilising
-    if wn_pitch_sq > 0:
-        wn_pitch   = np.sqrt(wn_pitch_sq)
-        damp_pitch = -(Mq_aero - m * a_x * u_star) / J_yy
-        zeta_pitch = damp_pitch / (2 * wn_pitch)
-        print(f"  Pitch mode ωn ≈ {wn_pitch:.5f} rad/s,  ζ ≈ {zeta_pitch:.5f}")
-    else:
-        print(f"  Pitch mode: net stiffness negative → check coupling")
-
-    # Roll pendulum
-    Lp_roll  = Lp_aero / J_xx
-    Lphi_roll = -L_phi / J_xx
-    if Lphi_roll < 0:
-        wn_roll  = np.sqrt(-Lphi_roll)
-        zeta_roll = -Lp_roll / (2 * wn_roll)
-        print(f"  Roll pendulum ωn ≈ {wn_roll:.5f} rad/s,  ζ ≈ {zeta_roll:.5f}")
-    else:
-        print(f"  Roll pendulum: check sign of b_z-a_z condition")
-
-    # ─────────────────────────────────────────────────────
-    # SUMMARY TABLE
-    # ─────────────────────────────────────────────────────
-    section_header("AIRSHIP – SUMMARY OF RESULTS")
-    print(f"  Trim speed u*            = {u_star:.2f} m/s")
-    print(f"  Neutral buoyancy (mg-B)  = {m - B_g:.4f} kg  (≈ 0 ✓)")
-    print(f"  Surge mode λ             = {lambda_surge:.6f} /s")
-    print(f"  Heave mode λ             = {lambda_heave:.6f} /s")
-    print("\n  Longitudinal Eigenvalues:")
-    for ev in sorted(evals_long, key=lambda e: abs(e.imag), reverse=True):
-        tag = "(pitch osc.)" if abs(ev.imag) > 0.01 else "(surge/heave)"
-        print(f"    λ = {ev.real:+.5f}  ±  j{abs(ev.imag):.5f}  {tag}")
-    print("\n  Lateral-Directional Eigenvalues:")
-    for ev in sorted(evals_lat, key=lambda e: abs(e.imag), reverse=True):
-        print(f"    λ = {ev.real:+.6f}  ±  j{abs(ev.imag):.6f}")
 
 
 # ──────────────────────────────────────────────────────────
@@ -902,9 +624,7 @@ if __name__ == "__main__":
     print("=" * 60)
 
     ga_aircraft()
-    print("\n\n")
-    # airship()
-
+  
     print("\n" + "=" * 60)
     print("  ANALYSIS COMPLETE")
     print("=" * 60)
