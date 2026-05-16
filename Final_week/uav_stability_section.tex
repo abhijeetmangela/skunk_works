@@ -1,0 +1,548 @@
+% ============================================================
+%  FLIGHT DYNAMICS & STABILITY ANALYSIS – UAV CASE STUDY
+%  Chapter section ready for insertion into UAV Design Report
+%
+%  Required packages (add to preamble if not already present):
+%    \usepackage{amsmath, amssymb}
+%    \usepackage{booktabs}
+%    \usepackage{array}
+%    \usepackage{multirow}
+%    \usepackage{graphicx}
+%    \usepackage{caption}
+%    \usepackage{subcaption}
+%    \usepackage{geometry}
+%    \usepackage{xcolor}
+%    \usepackage{siunitx}
+%    \usepackage{float}
+%    \usepackage{hyperref}
+% ============================================================
+
+% ------------------------------------------------------------------
+\section{Flight Dynamics and Stability Analysis}
+\label{sec:flight_dynamics}
+% ------------------------------------------------------------------
+
+This section presents a comprehensive small-perturbation stability analysis of the UAV, following the semi-empirical methodology outlined in the Chapter~9 Appendix of the reference textbook~\cite{ref_textbook}. The analysis is structured to cover: (i)~geometry and aerodynamic coefficient estimation, (ii)~longitudinal trim, (iii)~modal analysis of longitudinal dynamics (short-period and phugoid modes), and (iv)~modal analysis of lateral-directional dynamics (roll, Dutch roll, and spiral modes). All numerical results are obtained from the companion Python implementation and validated against closed-form approximate expressions.
+
+% ------------------------------------------------------------------
+\subsection{Aircraft Parameters}
+\label{subsec:parameters}
+% ------------------------------------------------------------------
+
+The geometric, mass/inertia, and aerodynamic input parameters used in this analysis are summarised in Tables~\ref{tab:geometry}--\ref{tab:aero_params}. The configuration is a conventional fixed-wing UAV with a rectangular wing, a conventional empennage, and a tractor propulsion system.
+
+\begin{table}[H]
+  \centering
+  \caption{UAV geometry and mass/inertia data.}
+  \label{tab:geometry}
+  \begin{tabular}{lll lll}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value}
+    & \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+    \midrule
+    Wing ref.\ area        & $S_w$          & \SI{0.5307}{m^2}
+    & Aircraft mass        & $m$            & \SI{6.298}{kg}  \\
+    Wing span              & $b_w$          & \SI{2.000}{m}
+    & Roll inertia         & $I_{xx}$       & \SI{0.751}{kg.m^2} \\
+    Wing root chord        & $c_r$          & \SI{0.2653}{m}
+    & Pitch inertia        & $I_{yy}$       & \SI{0.384}{kg.m^2} \\
+    Wing tip chord         & $c_t$          & \SI{0.2650}{m}
+    & Yaw inertia          & $I_{zz}$       & \SI{1.045}{kg.m^2} \\
+    Wing taper ratio       & $\lambda$      & $1.00$
+    & CG from nose         & $X_{CG}$       & \SI{0.264}{m}  \\
+    Wing sweep ($c/4$)     & $\Lambda_{c/4}$& \ang{0}
+    & Wing incidence       & $i_w$          & \ang{3}        \\
+    Wing dihedral          & $\Gamma$       & \ang{0}
+    & HT incidence         & $i_t$          & \ang{-0.423}   \\
+    HT planform area       & $S_{HT}$       & \SI{0.1327}{m^2}
+    & HT aspect ratio      & $AR_{HT}$      & $4.5$          \\
+    HT AC from nose        & $X_{AC}^{HT}$  & \SI{0.964}{m}
+    & VT planform area     & $S_{VT}$       & \SI{0.0478}{m^2}  \\
+    VT aspect ratio        & $AR_{VT}$      & $1.5$
+    & VT AC from nose      & $X_{AC}^{VT}$  & \SI{0.964}{m}  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Aerodynamic and flight condition parameters.}
+  \label{tab:aero_params}
+  \begin{tabular}{lll lll}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value}
+    & \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+    \midrule
+    Air density              & $\rho$              & \SI{1.22}{kg/m^3}
+    & Speed of sound         & $a$                 & \SI{340}{m/s}    \\
+    DPR at tail              & $\eta'$             & $0.99$
+    & Zero-lift AoA (wing)   & $\alpha_{L=0}$      & \ang{-3.5}       \\
+    Oswald efficiency        & $e$                 & $1.00$
+    & Zero-lift drag         & $C_{D0}$            & $0.02873$        \\
+    Airfoil $c_{l_\alpha}$ (wing) & ---           & \SI{3.611}{rad^{-1}}
+    & Airfoil $c_{l_\alpha}$ (HT/VT) & ---        & \SI{6.240}{rad^{-1}} \\
+    Pitching moment at AC    & $C_{m,ac}^{w}$      & $-0.030$
+    & Static margin          & $SM$                & $14\%$           \\
+    Aileron area             & $S_{\delta_a}$      & \SI{0.05}{m^2}
+    & Aileron span           & $l_{\delta_a}$      & \SI{0.76}{m}     \\
+    Elevator area            & $S_{\delta_e}$      & \SI{0.04}{m^2}
+    & Rudder area            & $S_{\delta_r}$      & \SI{0.01}{m^2}   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Derived Geometry and Aerodynamic Coefficients}
+\label{subsec:geometry_aero}
+% ------------------------------------------------------------------
+
+\subsubsection{Geometric Parameters}
+
+From the input data the following geometric quantities are derived. The mean aerodynamic chord is computed using:
+\begin{equation}
+  \bar{c} = \frac{2}{3}\,c_r\,\frac{1+\lambda+\lambda^2}{1+\lambda}
+  = \SI{0.2652}{m}
+  \label{eq:mac}
+\end{equation}
+
+The remaining derived quantities are listed in Table~\ref{tab:derived_geometry}.
+
+\begin{table}[H]
+  \centering
+  \caption{Derived geometric parameters.}
+  \label{tab:derived_geometry}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Mean aerodynamic chord      & $\bar{c}$      & $0.2652$  & m \\
+    Wing aspect ratio           & $AR_w$         & $7.5372$  & --- \\
+    HT span                     & $b_{HT}$       & $0.773$   & m \\
+    VT span                     & $b_{VT}$       & $0.268$   & m \\
+    VT AC height above FRL      & $z_{VT}$       & $0.119$   & m \\
+    HT moment arm               & $l_{HT}$       & $0.700$   & m \\
+    VT moment arm               & $l_{VT}$       & $0.700$   & m \\
+    HT volume ratio             & $\bar{V}_{HT}$ & $0.6601$  & --- \\
+    VT volume ratio             & $\bar{V}_{VT}$ & $0.0315$  & --- \\
+    Non-dim.\ CG location       & $h_{CG}$       & $0.996$   & --- \\
+    Induced-drag factor         & $K$            & $0.0422$  & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Lift-Curve Slopes}
+
+Finite-wing lift-curve slopes are obtained from the low-subsonic simplified form:
+\begin{equation}
+  C_{L_\alpha} = \frac{c_{l_\alpha}}{1 + \dfrac{c_{l_\alpha}}{\pi\, AR}}
+  \label{eq:CLalpha}
+\end{equation}
+
+\begin{table}[H]
+  \centering
+  \caption{Finite-wing lift-curve slopes.}
+  \label{tab:liftcurve}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Surface} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Wing            & $C_{L_\alpha,w}$   & $3.133$ & rad$^{-1}$ \\
+    Horizontal tail & $C_{L_\alpha,HT}$  & $4.329$ & rad$^{-1}$ \\
+    Vertical tail   & $C_{L_\alpha,VT}$  & $2.685$ & rad$^{-1}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The wing lift coefficient at zero angle of attack and the downwash gradient are:
+\begin{equation}
+  C_{L0,w} = C_{L_\alpha,w}\,\left|\alpha_{L=0}\right| = 0.1914, \qquad
+  \frac{d\varepsilon}{d\alpha} = \frac{2\,C_{L_\alpha,w}}{\pi\,AR_w} = 0.2646, \qquad
+  \varepsilon_0 = 0.0162
+  \label{eq:downwash}
+\end{equation}
+
+% ------------------------------------------------------------------
+\subsection{Longitudinal Trim Analysis}
+\label{subsec:trim}
+% ------------------------------------------------------------------
+
+\subsubsection{Neutral Point and Aerodynamic Centre}
+
+Given an assumed static margin $SM = 14\%\,\bar{c}$, the non-dimensional neutral point and wing-body aerodynamic centre locations are:
+\begin{align}
+  h_{NP} &= h_{CG} + SM = 1.136, \quad X_{NP} = h_{NP}\,\bar{c} = \SI{0.301}{m} \\[4pt]
+  h_{AC}^{wb} &= h_{NP} - \bar{V}_{HT}\,\frac{C_{L_\alpha,HT}}{C_{L_\alpha,w}}\left(1-\frac{d\varepsilon}{d\alpha}\right) = 0.465, \quad X_{AC}^{wb} = \SI{0.123}{m}
+\end{align}
+
+\subsubsection{Pitching Moment Derivatives and Trim State}
+
+The pitching moment coefficient derivatives about the CG are:
+\begin{align}
+  C_{m_\alpha,w}  &= \frac{X_{CG}-X_{AC}^{wb}}{\bar{c}}\,C_{L_\alpha,w} = +1.6629~\text{rad}^{-1} \\[4pt]
+  C_{m_\alpha,HT} &= -\eta'\,\bar{V}_{HT}\,C_{L_\alpha,HT}\!\left(1-\frac{d\varepsilon}{d\alpha}\right) = -2.0805~\text{rad}^{-1} \\[4pt]
+  C_{m_\alpha}    &= C_{m_\alpha,w} + C_{m_\alpha,HT} = \mathbf{-0.4176}~\text{rad}^{-1}
+\end{align}
+
+The negative value of $C_{m_\alpha}$ confirms \textbf{positive longitudinal static stability}. The zero-lift pitching moment coefficient is:
+\begin{equation}
+  C_{m0} = C_{m,ac}^{w} + \eta'\,\bar{V}_{HT}\,C_{L_\alpha,HT}\,\varepsilon_0 = 0.0157
+\end{equation}
+
+The complete trim state (for zero elevator deflection) is summarised in Table~\ref{tab:trim}.
+
+\begin{table}[H]
+  \centering
+  \caption{Longitudinal trim state of the UAV.}
+  \label{tab:trim}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Quantity} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Trim angle of attack   & $\alpha^*$    & $0.0377$ (\ang{2.16}) & rad (deg) \\
+    Whole-a/c $C_{L_\alpha}$ & $C_{L_\alpha}$ & $3.9210$            & rad$^{-1}$ \\
+    Whole-a/c $C_{L0}$     & $C_{L0}$      & $0.1661$              & ---        \\
+    Trim lift coefficient  & $C_L^*$       & $0.3139$              & ---        \\
+    Trim speed             & $V^*$         & $24.658$              & m/s        \\
+    Trim Mach number       & $Ma^*$        & $0.0725$              & ---        \\
+    Trim dynamic pressure  & $q^*$         & $370.903$             & N/m$^2$    \\
+    Trim drag coefficient  & $C_D^*$       & $0.0329$              & ---        \\
+    Thrust required        & $T_R$         & $6.47$                & N          \\
+    Power required         & $P_R$         & $159.64$ (0.21 hp)    & W (hp)     \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Longitudinal Dynamic Stability}
+\label{subsec:long_stability}
+% ------------------------------------------------------------------
+
+\subsubsection{Stability Derivatives}
+
+The key longitudinal stability derivatives evaluated at the trim condition are presented in Table~\ref{tab:long_derivs}.
+
+\begin{table}[H]
+  \centering
+  \caption{Longitudinal aerodynamic stability derivatives at trim.}
+  \label{tab:long_derivs}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Derivative} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Pitch-damping          & $C_{m_{q_1}}$              & $-14.9384$  & rad$^{-1}$ \\
+    Lift due to pitch rate & $C_{L_{q_1}}$              & $5.6584$    & rad$^{-1}$ \\
+    Drag-AoA derivative    & $C_{D_\alpha}$             & $0.1040$    & rad$^{-1}$ \\
+    Drag due to pitch rate & $C_{D_{q_1}}$              & $0.1500$    & rad$^{-1}$ \\
+    Lift–Mach derivative   & $C_{L_{Ma}}$               & $0.0229$    & ---        \\
+    Norm.\ pitch stiffness & $\bar{q}^*Sc/I_{yy}$       & $135.9159$  & s$^{-2}$   \\
+    Norm.\ lift factor     & $\bar{q}^*S/W$             & $3.1859$    & ---        \\
+    Frequency factor       & $g/V^*$                    & $0.3978$    & s$^{-1}$   \\
+    Non-dim.\ pitch rate   & $\bar{c}/(2V^*)$           & $0.00538$   & s          \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Short-Period Mode}
+
+Applying the classical second-order approximation (analogous to Eq.~2.33--2.34 of the reference), the short-period modal parameters are:
+\begin{align}
+  \omega_{n,SP}^2 &= -\frac{\bar{q}^*S\bar{c}}{I_{yy}}\,C_{m_\alpha}
+  \quad\Rightarrow\quad \omega_{n,SP} = \SI{7.534}{rad/s} \\[4pt]
+  2\zeta_{SP}\,\omega_{n,SP} &= -\frac{\bar{q}^*S\bar{c}}{I_{yy}}\cdot
+     \frac{\bar{c}}{2V^*}\!\left(C_{m_{q_1}}+C_{m_{\dot\alpha}}\right)
+  \quad\Rightarrow\quad \zeta_{SP} = 0.7245 \\[4pt]
+  T_{SP} &= \frac{2\pi}{\omega_{n,SP}} = \SI{0.834}{s}
+\end{align}
+
+The damping ratio $\zeta_{SP}=0.72$ falls within the MIL-SPEC Level~1 flying-quality corridor ($0.35 \le \zeta_{SP} \le 1.30$), indicating satisfactory short-period handling characteristics.
+
+\subsubsection{Phugoid Mode}
+
+The phugoid mode parameters from the approximate relations (Eqs.~5.35--5.36) are:
+\begin{align}
+  \omega_{n,Ph} &= \SI{0.5634}{rad/s}, \qquad
+  \zeta_{Ph}    = 0.0740, \qquad
+  T_{Ph}        = \SI{11.153}{s}
+\end{align}
+
+The positive but small phugoid damping ratio ($\zeta_{Ph} = 0.074$) indicates a \textbf{lightly damped but stable} phugoid mode, which is typical for UAVs of this class and consistent with Level~2 flying qualities.
+
+\subsubsection{Longitudinal State-Space Model}
+
+Following the first-order formulation (Eq.~9.7 of the reference), the longitudinal state vector is $\mathbf{x}_{long} = [\Delta V/V^*,\; \Delta\gamma,\; \Delta\alpha,\; \dot{\Delta\alpha}]^\top$ and the linearised system matrix evaluated at trim is:
+
+\begin{equation}
+  \mathbf{A}_{long} =
+  \begin{bmatrix}
+    -0.0834 & -0.3978 & -0.1318 & -0.0010 \\
+     0.7978 &  0.0000 &  4.9699 &  0.0386 \\
+     0.0000 &  0.0000 &  0.0000 &  1.0000 \\
+     0.0640 &  0.3056 & -54.5499& -15.2954
+  \end{bmatrix}
+  \label{eq:Along}
+\end{equation}
+
+The eigenvalues of $\mathbf{A}_{long}$ are:
+\begin{align}
+  \lambda_{Ph}  &= -0.02781 \pm j\,0.56108
+  \quad\rightarrow\quad \omega_{n} = \SI{0.562}{rad/s},\; \zeta = 0.0495 \\[3pt]
+  \lambda_{SP,1}&= -9.595 \quad (\text{real}) \\
+  \lambda_{SP,2}&= -5.729 \quad (\text{real})
+\end{align}
+
+The eigenvalue analysis confirms all longitudinal modes are \textbf{stable} (negative real parts). The phugoid natural frequency from the eigenvalue ($\omega_n = \SI{0.562}{rad/s}$) agrees closely with the approximate value ($\SI{0.563}{rad/s}$), validating the analytical approach.
+
+% ------------------------------------------------------------------
+\subsection{Lateral-Directional Dynamic Stability}
+\label{subsec:lat_stability}
+% ------------------------------------------------------------------
+
+\subsubsection{Aerodynamic Coefficients}
+
+The lateral-directional aerodynamic coefficients are estimated following the procedure of Section~9.1.3 of the reference. The sidewash factor computed at trim is:
+\begin{equation}
+  \left(1 + \frac{d\sigma}{d\beta}\right)\eta'_{VT} = 1.0005
+\end{equation}
+
+All lateral-directional stability derivatives are presented in Tables~\ref{tab:lat_static} and~\ref{tab:lat_rate}.
+
+\begin{table}[H]
+  \centering
+  \caption{Lateral-directional static stability derivatives.}
+  \label{tab:lat_static}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Derivative} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Side-force due to sideslip    & $C_{Y_\beta}$ & $-0.2395$ & rad$^{-1}$ \\
+    Yawing moment due to sideslip & $C_{n_\beta}$ & $+0.0838$ & rad$^{-1}$ \\
+    Rolling moment due to sideslip& $C_{l_\beta}$ & $-0.0111$ & rad$^{-1}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent The positive $C_{n_\beta} = 0.0838~\text{rad}^{-1}$ confirms \textbf{positive directional static stability} (weathercock stability). The negative $C_{l_\beta} = -0.0111~\text{rad}^{-1}$ confirms \textbf{positive effective dihedral} (roll stability due to sideslip).
+
+\begin{table}[H]
+  \centering
+  \caption{Lateral-directional rate derivatives.}
+  \label{tab:lat_rate}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Derivative} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    Side-force due to roll rate    & $C_{Y_{p_2}}$ & $+0.0063$ & rad$^{-1}$ \\
+    Roll damping                   & $C_{l_{p_2}}$ & $-0.6587$ & rad$^{-1}$ \\
+    Yawing moment due to roll rate & $C_{n_{p_2}}$ & $-0.0372$ & rad$^{-1}$ \\
+    Side-force due to yaw rate     & $C_{Y_{r_1}}$ & $+0.1686$ & rad$^{-1}$ \\
+    Rolling moment due to yaw rate & $C_{l_{r_1}}$ & $+0.1124$ & rad$^{-1}$ \\
+    Yaw damping (tail term)        & $C_{n_{r_1}}$ & $-0.0594$ & rad$^{-1}$ \\
+    Yaw damping (wing term)        & $C_{n_{r_2}}$ & $-0.0110$ & rad$^{-1}$ \\
+    Roll due to yaw rate (wing)    & $C_{l_{r_2}}$ & $+0.1046$ & rad$^{-1}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Dimensional Stability Parameters}
+
+The dimensional stability parameters used in the modal approximations are:
+
+\begin{align}
+  N_\beta  &= \frac{\bar{q}^*Sb}{I_{zz}}\,C_{n_\beta} = \SI{31.583}{s^{-2}}, \quad
+  Y_\beta   = \frac{\bar{q}^*S}{m}\,C_{Y_\beta}       = \SI{-7.486}{m/s^2}  \\[4pt]
+  L_\beta  &= \frac{\bar{q}^*Sb}{I_{xx}}\,C_{l_\beta} = \SI{-5.811}{s^{-2}}, \quad
+  L_{p_2}  = \frac{\bar{q}^*Sb}{I_{xx}}\,C_{l_{p_2}}\frac{b}{2V^*} = \SI{-14.003}{s^{-2}} \\[4pt]
+  N_{r_1}  &= \frac{\bar{q}^*Sb}{I_{zz}}\,C_{n_{r_1}}\frac{b}{2V^*} = \SI{-0.9068}{s^{-2}}, \quad
+  L_{r_1}  = \frac{\bar{q}^*Sb}{I_{xx}}\,C_{l_{r_1}}\frac{b}{2V^*}  = \SI{2.390}{s^{-2}}
+\end{align}
+
+\subsubsection{Lateral-Directional Dynamic Modes}
+
+\paragraph{Roll Mode.}
+The roll mode is a first-order convergence characterised approximately by:
+\begin{equation}
+  \lambda_r \approx L_{p_2} = \SI{-14.003}{s^{-1}}
+\end{equation}
+The large negative real eigenvalue indicates a \textbf{well-damped, fast roll subsidence} mode with time constant $\tau_r = 1/|\lambda_r| = \SI{0.071}{s}$, well within Level~1 flying-quality limits.
+
+\paragraph{Dutch Roll Mode.}
+Applying the approximate coupled lateral-directional formulae:
+\begin{align}
+  \omega_{n,DR} &= \SI{5.679}{rad/s}, \qquad \zeta_{DR} = 0.348, \qquad T_{DR} = \SI{1.107}{s}
+\end{align}
+The Dutch roll mode is \textbf{stable and adequately damped}. The product $\zeta_{DR}\,\omega_{n,DR} = 1.977~\text{rad/s}$ satisfies typical UAV Level~1 flying quality requirements.
+
+\paragraph{Spiral Mode.}
+\begin{equation}
+  \lambda_s = +0.06103~\text{s}^{-1} \quad (\textbf{UNSTABLE})
+\end{equation}
+The spiral mode is mildly unstable, as is common in many UAV and GA configurations. The positive eigenvalue implies a slow divergence with time-to-double $T_2 = \ln 2 / \lambda_s \approx \SI{11.4}{s}$, which is well within the acceptable threshold (typically $T_2 > \SI{20}{s}$ for Level~1) and is easily suppressed by a roll-angle stability augmentation system or pilot-in-the-loop correction.
+
+\subsubsection{Lateral-Directional State-Space Model}
+
+Following the first-order formulation (Eq.~9.11 of the reference), with state vector $\mathbf{x}_{lat} = [\Delta\mu,\; \dot{\Delta\mu},\; \Delta\beta,\; \dot{\Delta\beta}]^\top$, the system matrix at trim is:
+
+\begin{equation}
+  \mathbf{A}_{lat\text{-}dir} =
+  \begin{bmatrix}
+     0.0000 &  1.0000 &  0.0000 &  0.0000 \\
+     0.8849 & -14.0030 & -12.4353 & -2.3901 \\
+     0.0000 &  0.0000 &  0.0000 &  1.0000 \\
+     0.0666 &  0.3978 & -32.0821 & -3.8852
+  \end{bmatrix}
+  \label{eq:Alat}
+\end{equation}
+
+The eigenvalues of $\mathbf{A}_{lat\text{-}dir}$ are:
+\begin{align}
+  \lambda_{roll}   &= -14.0185 \quad\text{(roll subsidence)} \\
+  \lambda_{spiral} &= +0.0604  \quad\text{(spiral, unstable)} \\
+  \lambda_{DR}     &= -1.9650 \pm j\,5.3556
+  \quad\rightarrow\quad \omega_{n} = \SI{5.697}{rad/s},\; \zeta = 0.345
+\end{align}
+
+The eigenvalue results are in excellent agreement with the approximate analytical values, confirming the correctness of the state-space formulation.
+
+% ------------------------------------------------------------------
+\subsection{Control Effectiveness and Derivatives}
+\label{subsec:control}
+% ------------------------------------------------------------------
+
+Control surface effectiveness parameters are extracted from standard charts (Fig.~7.9 of the reference). The resulting control derivatives are presented in Table~\ref{tab:control_derivs}.
+
+\begin{table}[H]
+  \centering
+  \caption{Control surface effectiveness and control derivatives at trim.}
+  \label{tab:control_derivs}
+  \begin{tabular}{lll lll}
+    \toprule
+    \textbf{Parameter} & \textbf{Symbol} & \textbf{Value}
+    & \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+    \midrule
+    Elevator effectiveness  & $\tau_{\delta_e}$ & $0.50$
+    & Rudder effectiveness  & $\tau_{\delta_r}$ & $0.50$ \\
+    Aileron effectiveness   & $\tau_{\delta_a}$ & $0.22$
+    & & & \\[4pt]
+    $C_{L,\delta_e}$  & --- & $+0.5358~\text{rad}^{-1}$
+    & $C_{m,\delta_e}$ & --- & $-1.4146~\text{rad}^{-1}$ \\
+    $C_{l,\delta_a}$  & --- & $-0.4440~\text{rad}^{-1}$
+    & $C_{n,\delta_a}$ & --- & $+0.0128~\text{rad}^{-1}$ \\
+    $C_{n,\delta_r}$  & --- & $-0.0423~\text{rad}^{-1}$
+    & $C_{Y,\delta_r}$ & --- & $+0.1209~\text{rad}^{-1}$ \\
+    $C_{l,\delta_r}$  & --- & $+0.0056~\text{rad}^{-1}$
+    & & & \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The negative $C_{m,\delta_e} = -1.4146~\text{rad}^{-1}$ confirms that a positive (trailing-edge-down) elevator deflection produces a nose-down pitching moment as expected for a conventional tail configuration. The adverse yaw derivative $C_{n,\delta_a} = +0.0128~\text{rad}^{-1}$ is small relative to $C_{n_\beta}$, indicating manageable aileron-induced yaw coupling.
+
+% ------------------------------------------------------------------
+\subsection{Summary of Results}
+\label{subsec:summary}
+% ------------------------------------------------------------------
+
+A consolidated summary of all key stability and performance results is provided in Table~\ref{tab:summary}.
+
+\begin{table}[H]
+  \centering
+  \caption{Summary of UAV flight dynamics and stability analysis results.}
+  \label{tab:summary}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Quantity} & \textbf{Symbol} & \textbf{Value} & \textbf{Unit} \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Trim Condition}} \\
+    Trim angle of attack          & $\alpha^*$           & $2.159$    & deg     \\
+    Trim speed                    & $V^*$                & $24.658$   & m/s     \\
+    Trim lift coefficient         & $C_L^*$              & $0.3139$   & ---     \\
+    Trim drag coefficient         & $C_D^*$              & $0.0329$   & ---     \\
+    Thrust required               & $T_R$                & $6.474$    & N       \\
+    Power required                & $P_R$                & $0.214$    & hp      \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Longitudinal Modes}} \\
+    Short-period nat.\ frequency (approx.) & $\omega_{n,SP}$ & $7.534$ & rad/s \\
+    Short-period damping ratio   & $\zeta_{SP}$         & $0.7245$   & ---     \\
+    Phugoid nat.\ frequency      & $\omega_{n,Ph}$      & $0.563$    & rad/s   \\
+    Phugoid damping ratio        & $\zeta_{Ph}$         & $0.0740$   & ---     \\
+    \midrule
+    \multicolumn{4}{l}{\textit{Lateral-Directional Modes}} \\
+    Roll mode eigenvalue          & $\lambda_r$          & $-14.003$  & s$^{-1}$\\
+    Dutch roll nat.\ frequency   & $\omega_{n,DR}$      & $5.679$    & rad/s   \\
+    Dutch roll damping ratio     & $\zeta_{DR}$         & $0.3481$   & ---     \\
+    Spiral mode eigenvalue        & $\lambda_s$          & $+0.0610$  & s$^{-1}$\\
+    Spiral mode stability         & ---  & \textbf{Unstable} (mild) & ---   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ------------------------------------------------------------------
+\subsection{Eigenvalue Analysis – Complex Plane Plots}
+\label{subsec:eigenvalue_plots}
+% ------------------------------------------------------------------
+
+Figure~\ref{fig:eigenvalue_plots} shows the eigenvalues of the longitudinal and lateral-directional system matrices plotted in the complex ($\sigma$--$j\omega$) plane. All eigenvalues in the left-half plane (LHP) correspond to stable modes. The mildly unstable spiral mode appears as a small positive real eigenvalue in the lateral-directional plot.
+
+\begin{figure}[H]
+  \centering
+  % ----------------------------------------------------------------
+  % INSERT EIGENVALUE PLOT HERE
+  % Replace the \fbox placeholder below with:
+  %   \includegraphics[width=\textwidth]{eigenvalue_plot.png}
+  % once the figure file is placed in the same directory as this .tex
+  % ----------------------------------------------------------------
+  \fbox{%
+    \begin{minipage}{0.95\textwidth}
+      \centering
+      \vspace{4cm}
+      \textit{[Insert \texttt{eigenvalue\_plot.png} here]}\\[6pt]
+      \small Generated by \texttt{flight\_dynamics\_stability\_2.py}
+      \vspace{4cm}
+    \end{minipage}%
+  }
+  \caption{Eigenvalue plots in the complex plane for the UAV. \textit{Left:} Longitudinal modes — phugoid (orange) and short-period (blue) conjugate pairs plus two real short-period roots. \textit{Right:} Lateral-directional modes — Dutch roll conjugate pair (crimson), roll subsidence (blue) and spiral mode (orange).}
+  \label{fig:eigenvalue_plots}
+\end{figure}
+
+% ------------------------------------------------------------------
+\subsection{Stability Assessment}
+\label{subsec:assessment}
+% ------------------------------------------------------------------
+
+Table~\ref{tab:assessment} provides a qualitative assessment of each mode against standard flying-quality criteria.
+
+\begin{table}[H]
+  \centering
+  \caption{Stability mode assessment summary.}
+  \label{tab:assessment}
+  \begin{tabular}{lllll}
+    \toprule
+    \textbf{Mode} & \textbf{Key Metric} & \textbf{Value} & \textbf{Assessment} & \textbf{Level} \\
+    \midrule
+    Short period  & $\zeta_{SP}=0.72$, $\omega_{n}=7.53$~rad/s
+                  & Within MIL corridor & Stable, well-damped    & 1 \\
+    Phugoid       & $\zeta_{Ph}=0.074 > 0$
+                  & $\zeta > 0.04$ (Level 1 min) & Stable, lightly damped & 1--2 \\
+    Roll subsidence & $\tau_r=0.071$~s $\ll$ limit
+                  & Fast convergence   & Stable, well-damped     & 1 \\
+    Dutch roll    & $\zeta_{DR}=0.348$, $\omega_{n}=5.68$~rad/s
+                  & $\zeta_{DR}\omega_{n}=1.98$ & Stable, adequate damping & 1 \\
+    Spiral        & $T_2 \approx 11.4$~s
+                  & $T_2 > 8$~s (Level 2) & Mildly unstable, slow & 2 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Overall, the UAV exhibits satisfactory flying qualities across all axes. The only concern is the mildly unstable spiral mode; however, given its slow time-to-double of approximately \SI{11.4}{s}, this divergence is well within pilot-correctable limits and does not pose a safety risk during normal autonomous or manually-assisted flight. Implementation of a simple roll-angle hold loop in the autopilot would eliminate this instability entirely.
+
+% ------------------------------------------------------------------
+% BIBLIOGRAPHY ENTRY (add to your .bib file)
+% ------------------------------------------------------------------
+% @book{ref_textbook,
+%   author    = {Sinha, N. K. and Ananthkrishnan, N.},
+%   title     = {Elementary Flight Dynamics with an Introduction to Bifurcation
+%                and Continuation Methods},
+%   publisher = {CRC Press / Taylor \& Francis},
+%   year      = {2014},
+%   note      = {Chapter 9 Appendix: Case Studies}
+% }

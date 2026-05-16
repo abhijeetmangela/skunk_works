@@ -1,0 +1,175 @@
+(Abhi_env) asif@asif:~/Documents/GitHub/skunk_works/Final_week$ python3 flight_dynamics_stability_2.py 
+============================================================
+  FLIGHT DYNAMICS & STABILITY ANALYSIS
+  Chapter 9 Appendix – Case Studies
+============================================================
+
+============================================================
+  CASE 1 – UAV
+============================================================
+
+--- A) Input Parameters ---
+  Inputs loaded.
+
+--- B) Derived Geometry Parameters ---
+  c_bar   = 0.2652 m
+  AR_w    = 7.5372
+  lam     = 1.00
+  b_HT    = 0.773 m,   b_VT = 0.268 m
+  z_VT    = 0.119 m
+  l_HT    = 0.700 m,   l_VT = 0.700 m
+  V_HT    = 0.6601,      V_VT = 0.0315
+  h_CG    = 0.996
+  K       = 0.0422
+
+--- C) Aerodynamic Coefficients ---
+  CL_alpha_w   = 3.133 /rad
+  CL_alpha_HT  = 4.329 /rad
+  CL_alpha_VT  = 2.685 /rad
+  CL0_w        = 0.1914
+  de/da        = 0.2646
+  eps_0        = 0.0162
+
+--- D) Trim Calculations ---
+  h_NP         = 1.136,   X_NP   = 0.301 m
+  h_AC_wb      = 0.465,  X_AC_wb = 0.123 m
+  Cm_alpha_w   = 1.6629 /rad
+  Cm_alpha_HT  = -2.0805 /rad
+  Cm_alpha     = -0.4176 /rad
+  Cm0          = 0.0157
+  CL0          = 0.1661
+  CL_alpha     = 3.9210 /rad
+  Alpha_trim   = 0.0377 rad  (2.16 deg)
+  CL_trim      = 0.3139
+  V_trim       = 24.658 m/s
+  Ma_trim      = 0.0725
+  q_trim       = 370.903 N/m²
+  CD_trim      = 0.0329
+  Thrust req.  = 6.47 N
+  Power req.   = 159.64 W  (0.2 hp)
+
+--- E) Longitudinal Stability Derivatives ---
+  Cm_q1        = -14.9384 /rad
+  CL_q1        = 5.6584 /rad
+  CD_alpha     = 0.1040 /rad
+  CD_q1        = 0.1500 /rad
+  CL_Ma        = 0.0229
+  q̄*Sc/Iyy     = 135.9159 /s²
+  q̄*S/W        = 3.1859
+  g/V*         = 0.3978
+  c/(2V*)      = 0.00538 s
+
+--- F) Longitudinal Dynamic Modes (Approximate) ---
+
+  SHORT PERIOD MODE
+    omega_n   = 7.5338 rad/s
+    zeta      = 0.7245
+    Period    = 0.8340 s
+
+  PHUGOID MODE
+    omega_n   = 0.5634 rad/s
+    zeta      = 0.0740
+    Period    = 11.1529 s
+
+--- G) Longitudinal State-Space Matrix A_long ---
+
+  A_long =
+[[   -0.0834    -0.3978    -0.1318    -0.0010]
+ [    0.7978     0.0000     4.9699     0.0386]
+ [    0.0000     0.0000     0.0000     1.0000]
+ [    0.0640     0.3056   -54.5499   -15.2954]]
+
+  Eigenvalues of A_long:
+    λ = -0.02781  +  j0.56108
+    λ = -0.02781  -  j0.56108
+    λ = -9.59466  +  j0.00000
+    λ = -5.72850  +  j0.00000
+    → Phugoid: omega_n = 0.5618 rad/s, zeta = 0.0495
+    → Phugoid: omega_n = 0.5618 rad/s, zeta = 0.0495
+
+--- H) Lateral-Directional Aerodynamic Coefficients ---
+  Sidewash factor (1+dsig/db)*eta_VT = 1.0005
+  CY_beta  = -0.2395 /rad
+  Cn_beta  = 0.0838 /rad
+  Cl_beta  = -0.0111 /rad
+
+  CY_p2    = 0.0063 /rad
+  Cl_p2    = -0.6587 /rad
+  Cn_p2    = -0.0372 /rad
+  CY_r1    = 0.1686 /rad
+  Cl_r1    = 0.1124 /rad
+  Cn_r1    = -0.0594 /rad
+  Cn_r2    = -0.0110 /rad
+  Cl_r2    = 0.1046 /rad
+
+--- I) Lateral-Directional Dynamic Modes (Approximate) ---
+  N_beta  = 31.5832 /s²
+  Y_beta  = -7.4864 m/s²
+  L_beta  = -5.8109 /s²
+  L_p2    = -14.0030 /s²
+  N_r1    = -0.9068 /s²
+  L_r1    = 2.3901 /s²
+
+  ROLL MODE
+    lambda_r  = -14.0030 /s
+
+  DUTCH ROLL MODE
+    omega_n   = 5.6787 rad/s
+    zeta      = 0.3481
+
+  SPIRAL MODE
+    lambda_s  = 0.06103 /s  (UNSTABLE)
+
+--- J) Lateral-Directional State-Space Matrix A_lat-dir ---
+
+  A_lat-dir =
+[[    0.0000     1.0000     0.0000     0.0000]
+ [    0.8849   -14.0030   -12.4353    -2.3901]
+ [    0.0000     0.0000     0.0000     1.0000]
+ [    0.0666     0.3978   -32.0821    -3.8852]]
+
+  Eigenvalues of A_lat-dir:
+    λ = -14.01851  +  j0.00000
+    λ = +0.06041  +  j0.00000
+    λ = -1.96501  +  j5.35555
+    λ = -1.96501  -  j5.35555
+
+--- K) Control Effectiveness & Derivatives ---
+  tau_de = 0.5,  tau_dr = 0.5,  tau_da = 0.22
+  CL_de  = 0.5358 /rad
+  Cm_de  = -1.4146 /rad
+  Cl_da  = -0.4440 /rad
+  Cn_da  = 0.0128 /rad
+  Cn_dr  = -0.0423 /rad
+  CY_dr  = 0.1209 /rad
+  Cl_dr  = 0.0056 /rad
+
+============================================================
+  AIRCRAFT – SUMMARY OF RESULTS
+============================================================
+  Trim AoA (deg)                          : 2.15871
+  Trim Speed V* (m/s)                     : 24.65843
+  Trim CL                                 : 0.31388
+  Trim CD                                 : 0.03289
+  Thrust Required (N)                     : 6.47414
+  Power Required (hp)                     : 0.21408
+  SP omega_n (rad/s) [approx]             : 7.53382
+  SP zeta        [approx]                 : 0.72448
+  SP omega_n (rad/s) [eigen]              : 0.56177
+  Phugoid omega_n (rad/s)                 : 0.56337
+  Phugoid zeta                            : 0.07400
+  Roll mode λ (1/s)                       : -14.00296
+  Dutch-roll omega_n (rad/s)              : 5.67866
+  Dutch-roll zeta                         : 0.34806
+  Spiral mode λ (1/s)                     : 0.06103
+
+============================================================
+  L) Eigenvalue Plots
+============================================================
+
+  Eigenvalue plots saved to eigenvalue_plot.png
+
+============================================================
+  ANALYSIS COMPLETE
+============================================================
+

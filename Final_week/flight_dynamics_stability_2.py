@@ -1,19 +1,18 @@
 """
 ============================================================
   Flight Dynamics & Stability Analysis
-  Based on: Chapter 9 Appendix – Case Studies
+  Author: Abhijeet Mangela
+  Based on: Chapter 9 Appendix -- Case Studies
   Case 1 : UAV aircraft.
 ============================================================
 All formulas are taken directly from the supplied PDF.
-No external formulas have been introduced.
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-# ─────────────────────────────────────────────────────────
-#  UTILITY
-# ─────────────────────────────────────────────────────────
-D2R = np.pi / 180.0   # degrees → radians
+D2R = np.pi / 180.0   # degrees -> radians
 
 
 def section_header(title):
@@ -26,85 +25,77 @@ def sub_header(title):
     print(f"\n--- {title} ---")
 
 
-# ╔══════════════════════════════════════════════════════════╗
-# ║          CASE 1 – GA AIRCRAFT                           ║
-# ╚══════════════════════════════════════════════════════════╝
 
-def ga_aircraft():
-    section_header("CASE 1 – UAV")
 
-    # ─────────────────────────────────────────────────────
-    # (A) INPUT PARAMETERS
-    # ─────────────────────────────────────────────────────
+def aircraft():
+    section_header("CASE 1 -- UAV")
+
     sub_header("A) Input Parameters")
 
-    # ── Geometry ──────────────────────────────────────────
-    g        = 9.81          # m/s^2  – gravitational acceleration
-    S_w      = 0.5307         # m^2   – wing planform (reference) area
-    b_w      = 2         # m     – wing span
-    c_r      = 0.2653          # m     – wing root chord (NACA 23018)
-    c_t      = 0.2650          # m     – wing tip chord  (NACA 23012)
+    #  Geometry 
+    g        = 9.81          # m/s^2  -- gravitational acceleration
+    S_w      = 0.5307         # m^2   -- wing planform (reference) area
+    b_w      = 2         # m     -- wing span
+    c_r      = 0.2653          # m     -- wing root chord (NACA 23018)
+    c_t      = 0.2650          # m     -- wing tip chord  (NACA 23012)
     lam      = c_t / c_r    # taper ratio  (= 0.5)
-    Lambda_c4_deg = 0     # deg   – wing quarter-chord sweep angle
-    Gamma_deg     = 0     # deg   – wing dihedral angle
-    i_w      = 3           # deg   – wing incidence setting angle
+    Lambda_c4_deg = 0     # deg   -- wing quarter-chord sweep angle
+    Gamma_deg     = 0     # deg   -- wing dihedral angle
+    i_w      = 3           # deg   -- wing incidence setting angle
 
-    S_HT     = 0.1327          # m^2   – horizontal tail planform area
-    AR_HT    = 4.5           # –     – HT aspect ratio
-    i_t      = -0.423           # deg   – HT incidence setting angle
-    X_AC_HT  = 0.964          # m     – HT aerodynamic-centre from nose
+    S_HT     = 0.1327          # m^2   -- horizontal tail planform area
+    AR_HT    = 4.5           # --     -- HT aspect ratio
+    i_t      = -0.423           # deg   -- HT incidence setting angle
+    X_AC_HT  = 0.964          # m     -- HT aerodynamic-centre from nose
 
-    S_VT     = 0.0478          # m^2   – vertical tail planform area
-    AR_VT    = 1.5           # –     – VT aspect ratio
-    X_AC_VT  = 0.964          # m     – VT AC from nose
+    S_VT     = 0.0478          # m^2   -- vertical tail planform area
+    AR_VT    = 1.5           # --     -- VT aspect ratio
+    X_AC_VT  = 0.964          # m     -- VT AC from nose
 
-    l_f      = 1.12          # m     – fuselage length
-    S_f      = 1.11          # m^2   – fuselage side projected area
-    D_f      = 2*(np.sqrt(0.3*0.25*1.2/np.pi))          # m     – max fuselage diameter
+    l_f      = 1.12          # m     -- fuselage length
+    S_f      = 1.11          # m^2   -- fuselage side projected area
+    D_f      = 2*(np.sqrt(0.3*0.25*1.2/np.pi))          # m     -- max fuselage diameter
 
-    S_da     = 0.05          # m^2   – aileron surface area
-    l_da     = 0.76          # m     – aileron span
-    S_de     = 0.04          # m^2   – elevator surface area
-    S_dr     = 0.01          # m^2   – rudder surface area
+    S_da     = 0.05          # m^2   -- aileron surface area
+    l_da     = 0.76          # m     -- aileron span
+    S_de     = 0.04          # m^2   -- elevator surface area
+    S_dr     = 0.01          # m^2   -- rudder surface area
 
-    # ── Mass & Inertia ────────────────────────────────────
-    m        = 6.298       # kg    – aircraft mass
-    I_xx     = 0.751       # kg·m² – roll inertia
-    I_yy     = 0.384       # kg·m² – pitch inertia
-    I_zz     = 1.045       # kg·m² – yaw inertia
+    #  Mass & Inertia 
+    m        = 6.298       # kg    -- aircraft mass
+    I_xx     = 0.751       # kgm -- roll inertia
+    I_yy     = 0.384       # kgm -- pitch inertia
+    I_zz     = 1.045       # kgm -- yaw inertia
 
-    X_CG     = 0.264          # m     – CG location from nose
+    X_CG     = 0.264          # m     -- CG location from nose
 
-    # ── Aerodynamic parameters ───────────────────────────
-    alpha_L0_deg = -3.5      # deg   – wing zero-lift AoA
-    Cm_ac_w      = -0.022    # –     – residual pitching moment at AC
-    SM           = 0.14      # –     – assumed static margin (15 %)
-    e_oswald     = 1       # –     – Oswald efficiency factor
-    C_D0         = 0.02873     # –     – zero-lift drag coefficient
-    # Airfoil lift-curve slopes (rad⁻¹)
-    cl_alpha_w   = 3.6107      # /rad  – NACA 23018 airfoil (0.1/deg)
-    cl_alpha_HT  = 6.24      # /rad  – NACA 0012 (0.109/deg)
-    cl_alpha_VT  = 6.24      # /rad  – NACA 0012
+    #  Aerodynamic parameters 
+    alpha_L0_deg = -3.5      # deg   -- wing zero-lift AoA
+    Cm_ac_w      = -0.03    # --     -- residual pitching moment at AC
+    SM           = 0.14      # --     -- assumed static margin (15 %)
+    e_oswald     = 1       # --     -- Oswald efficiency factor
+    C_D0         = 0.02873     # --     -- zero-lift drag coefficient
+    # Airfoil lift-curve slopes (rad)
+    cl_alpha_w   = 3.6107      # /rad  -- NACA 23018 airfoil (0.1/deg)
+    cl_alpha_HT  = 6.24      # /rad  -- NACA 0012 (0.109/deg)
+    cl_alpha_VT  = 6.24      # /rad  -- NACA 0012
 
-    # ── Flight conditions ─────────────────────────────────
-    rho          = 1.22      # kg/m³ – air density at flight altitude
-    a_sound      = 340.0     # m/s   – speed of sound
-    eta          = 0.99      # –     – dynamic pressure ratio at tail
+    #  Flight conditions 
+    rho          = 1.22      # kg/m -- air density at flight altitude
+    a_sound      = 340.0     # m/s   -- speed of sound
+    eta          = 0.99      # --     -- dynamic pressure ratio at tail
 
-    # ── Engine/propeller data ─────────────────────────────
-    P_max        = 450  # N·m/s – max engine power (360 hp)
-    N_blades     = 4         # –     – number of propeller blades
-    D_prop       = 0.3048      # m     – propeller diameter
-    l_prop       = 0.12957      # m     – prop disc to CG distance
+    #  Engine/propeller data 
+    P_max        = 450  # Nm/s -- max engine power (360 hp)
+    N_blades     = 4         # --     -- number of propeller blades
+    D_prop       = 0.3048      # m     -- propeller diameter
+    l_prop       = 0.12957      # m     -- prop disc to CG distance
 
     # vertical location of wing root q-chord above CG line (for lat-dir)
     z_w          = 0.06     # m
 
     print("  Inputs loaded.")
 
-    # ─────────────────────────────────────────────────────
-    # (B) DERIVED GEOMETRY PARAMETERS
-    # ─────────────────────────────────────────────────────
     sub_header("B) Derived Geometry Parameters")
 
     # Mean aerodynamic chord  (Eq. from PDF)
@@ -147,9 +138,6 @@ def ga_aircraft():
     print(f"  h_CG    = {h_CG:.3f}")
     print(f"  K       = {K:.4f}")
 
-    # ─────────────────────────────────────────────────────
-    # (C) AERODYNAMIC COEFFICIENT CALCULATIONS
-    # ─────────────────────────────────────────────────────
     sub_header("C) Aerodynamic Coefficients")
 
     # Finite-wing lift-curve slopes  (low-subsonic simplified form, PDF Eq.)
@@ -163,8 +151,8 @@ def ga_aircraft():
 
     # Wing lift coefficient at zero AoA
     CL0_w = CL_alpha_w * (alpha_L0_deg * D2R) * (-1)   # note: alpha_L0 is negative
-    # PDF formula: CL0_w = CL_alpha_w × |alpha_L=0| × pi/180
-    # CL0_w = CL_alpha_w * abs(alpha_L0_deg) * D2R
+    # PDF formula: CL0_w = CL_alpha_w  |alpha_L=0|  pi/180
+    CL0_w = CL_alpha_w * abs(alpha_L0_deg) * D2R
     print(f"  CL0_w        = {CL0_w:.4f}")
 
     # Downwash gradient  de/da
@@ -173,9 +161,6 @@ def ga_aircraft():
     print(f"  de/da        = {eps_alpha:.4f}")
     print(f"  eps_0        = {eps_0:.4f}")
 
-    # ─────────────────────────────────────────────────────
-    # (D) TRIM CALCULATIONS
-    # ─────────────────────────────────────────────────────
     sub_header("D) Trim Calculations")
 
     # Neutral-point location (non-dim)
@@ -195,14 +180,14 @@ def ga_aircraft():
     Cm_alpha    = Cm_alpha_w + Cm_alpha_HT
 
     Cm0_HT = eta * V_HT * CL_alpha_HT * (i_t * D2R * (-1) + eps_0)
-    Cm0    = Cm_ac_w + eta * V_HT * CL_alpha_HT * (-i_t*D2R + eps_0)
+    Cm0    = Cm_ac_w + eta * V_HT * CL_alpha_HT * (eps_0)
 
     # Trim AoA (zero elevator deflection)
     alpha_trim_rad = -Cm0 / Cm_alpha
     alpha_trim_deg = alpha_trim_rad / D2R
 
     # Whole-aircraft CL_alpha and CL0
-    CL0 = (CL_alpha_w * -alpha_L0_deg * D2R
+    CL0 = (CL_alpha_w * abs(alpha_L0_deg) * D2R
            + eta * (S_HT / S_w) * CL_alpha_HT * (i_t * D2R - eps_0))
     CL_alpha = (CL_alpha_w
                 + eta * (S_HT / S_w) * CL_alpha_HT * (1 - eps_alpha))
@@ -238,14 +223,13 @@ def ga_aircraft():
     print(f"  CL_trim      = {CL_trim:.4f}")
     print(f"  V_trim       = {V_trim:.3f} m/s")
     print(f"  Ma_trim      = {Ma_trim:.4f}")
-    print(f"  q_trim       = {q_trim:.3f} N/m²")
+    print(f"  q_trim       = {q_trim:.3f} N/m")
     print(f"  CD_trim      = {CD_trim:.4f}")
     print(f"  Thrust req.  = {T_req:.2f} N")
     print(f"  Power req.   = {P_req:.2f} W  ({P_req/745.7:.1f} hp)")
 
-    # ─────────────────────────────────────────────────────
     # (E) LONGITUDINAL STABILITY DERIVATIVES
-    # ─────────────────────────────────────────────────────
+
     sub_header("E) Longitudinal Stability Derivatives")
 
     # Pitch-rate & alpha-dot derivatives
@@ -274,33 +258,33 @@ def ga_aircraft():
     print(f"  CD_alpha     = {CD_alpha:.4f} /rad")
     print(f"  CD_q1        = {CD_q1:.4f} /rad")
     print(f"  CL_Ma        = {CL_Ma:.4f}")
-    print(f"  q̄*Sc/Iyy     = {qSc_Iyy:.4f} /s²")
-    print(f"  q̄*S/W        = {qS_W:.4f}")
+    print(f"  q*Sc/Iyy     = {qSc_Iyy:.4f} /s")
+    print(f"  q*S/W        = {qS_W:.4f}")
     print(f"  g/V*         = {g_V:.4f}")
     print(f"  c/(2V*)      = {c_2V:.5f} s")
 
-    # ─────────────────────────────────────────────────────
+
     # (F) LONGITUDINAL DYNAMIC MODES (2nd-order approx.)
-    # ─────────────────────────────────────────────────────
+
     sub_header("F) Longitudinal Dynamic Modes (Approximate)")
 
-    # ── Short Period ──────────────────────────────────────
-    # (omega_n)^2_SP = -(q̄*Sc/Iyy) * Cm_alpha
+
+    # (omega_n)^2_SP = -(q*Sc/Iyy) * Cm_alpha
     wn_SP_sq = -qSc_Iyy * Cm_alpha
     wn_SP    = np.sqrt(wn_SP_sq)
     T_SP     = 2 * np.pi / wn_SP
 
-    # 2*zeta*wn_SP = -(q̄*Sc/Iyy) * (c/2V*) * (Cm_q1 + Cm_adot)
+    # 2*zeta*wn_SP = -(q*Sc/Iyy) * (c/2V*) * (Cm_q1 + Cm_adot)
     two_zeta_wn_SP = -qSc_Iyy * c_2V * (Cm_q1 + Cm_adot)
     zeta_SP  = two_zeta_wn_SP / (2 * wn_SP)
 
-    # ── Phugoid ───────────────────────────────────────────
-    # (omega_n)^2_Ph = (g/V*)^2 * [(q̄*S/W) * (Ma* * CL_Ma + 2*CL*)]
+
+    # (omega_n)^2_Ph = (g/V*)^2 * [(q*S/W) * (Ma* * CL_Ma + 2*CL*)]
     wn_Ph_sq = (g_V**2) * qS_W * (Ma_trim * CL_Ma + 2 * CL_trim)
     wn_Ph    = np.sqrt(wn_Ph_sq)
     T_Ph     = 2 * np.pi / wn_Ph
 
-    # 2*zeta*wn_Ph = (g/V*) * [(q̄*S/W) * (Ma* * CD_Ma + 2*CD*)]
+    # 2*zeta*wn_Ph = (g/V*) * [(q*S/W) * (Ma* * CD_Ma + 2*CD*)]
     two_zeta_wn_Ph = g_V * qS_W * (Ma_trim * CD_Ma + 2 * CD_trim)
     zeta_Ph  = two_zeta_wn_Ph / (2 * wn_Ph)
 
@@ -314,12 +298,12 @@ def ga_aircraft():
     print(f"    zeta      = {zeta_Ph:.4f}")
     print(f"    Period    = {T_Ph:.4f} s")
 
-    # ─────────────────────────────────────────────────────
+
     # (G) LONGITUDINAL A-MATRIX (1st-order form, Sec. 9.1.2)
-    # ─────────────────────────────────────────────────────
+
     sub_header("G) Longitudinal State-Space Matrix A_long")
 
-    # State vector: [ΔV/V*, Δγ, Δα, Δα̇]
+    # State vector: [V/V*, , , ]
     a11 = -g_V * qS_W * (Ma_trim * CD_Ma + 2 * CD_trim)
     a12 = -g_V
     a13 = -g_V * qS_W * CD_alpha
@@ -335,7 +319,7 @@ def ga_aircraft():
     a33 = 0.0
     a34 = 1.0
 
-    # k-factors for the α̈ row
+    # k-factors for the  row
     k_alpha_dot  = 1 + g_V * qS_W * CL_q1 * c_2V
     k_gamma      = (g_V**2) * qS_W * (Ma_trim * CL_Ma + 2 * CL_trim)
     k_alpha      = ((g_V**2) * (qS_W**2)
@@ -369,7 +353,7 @@ def ga_aircraft():
     evals_long = np.linalg.eigvals(A_long)
     print("\n  Eigenvalues of A_long:")
     for ev in evals_long:
-        print(f"    λ = {ev.real:+.5f}  {'+' if ev.imag >= 0 else '-'}  j{abs(ev.imag):.5f}")
+        print(f"     = {ev.real:+.5f}  {'+' if ev.imag >= 0 else '-'}  j{abs(ev.imag):.5f}")
 
     # Identify modes from eigenvalues
     for ev in evals_long:
@@ -378,43 +362,43 @@ def ga_aircraft():
             zeta_ev = -ev.real / wn if ev.imag != 0 else None
             if abs(ev.imag) > 0.05:
                 label = "Short Period" if wn > 1.0 else "Phugoid"
-                print(f"    → {label}: omega_n = {wn:.4f} rad/s, "
+                print(f"    -> {label}: omega_n = {wn:.4f} rad/s, "
                       f"zeta = {(-ev.real/wn):.4f}")
 
-    # ─────────────────────────────────────────────────────
+
     #  LATERAL-DIRECTIONAL AERODYNAMICS (Sec. 9.1.3)
-    # ─────────────────────────────────────────────────────
+
     sub_header("H) Lateral-Directional Aerodynamic Coefficients")
 
     Gamma_rad    = Gamma_deg * D2R
     alpha_t_rad  = alpha_trim_rad
 
-    # ── Sidewash factor ────────────────────────────────────
+    #  Sidewash factor 
     # (1 + dsig/dbeta) * eta_VT = formula from PDF
     Lambda_c4_rad = Lambda_c4_deg * D2R
     sidewash = (0.724
                 + 3.06 * (S_VT / S_w) / (2.0)
                 + 0.4 * z_w / D_f
                 + 0.009 * AR_w)
-    # Note: PDF uses (S_VT/S_w)/(1+cos(Λ_c/4)) with cos≈1 for small sweep
+    # Note: PDF uses (S_VT/S_w)/(1+cos(_c/4)) with cos1 for small sweep
     # Reproduced exactly as in PDF:
     sidewash = (0.724
                 + 3.06 * (S_VT / S_w) / (1 + np.cos(Lambda_c4_rad))
                 + 0.4 * z_w / D_f
                 + 0.009 * AR_w)
 
-    # ── Side-force coefficients ──────────────────────────
-    CY_beta_w  = -0.0001 * Gamma_deg * D2R   # ≈ 0
+    #  Side-force coefficients 
+    CY_beta_w  = -0.0001 * Gamma_deg * D2R   #  0
     CY_beta_VT = (-eta * CL_alpha_VT * (S_VT / S_w) * sidewash)
     CY_beta    = CY_beta_w + CY_beta_VT
 
-    # ── Yawing-moment coefficients ────────────────────────
+    #  Yawing-moment coefficients 
     Cn_beta_w  = -0.075 * Gamma_deg * D2R * CL_trim
     Cn_beta_VT = -CY_beta_VT * (l_VT / b_w)
     Cn_beta    = Cn_beta_w + Cn_beta_VT
 
-    # ── Rolling-moment coefficients ───────────────────────
-    # z = z_VT*cos(α) – l_VT*sin(α)
+    #  Rolling-moment coefficients 
+    # z = z_VT*cos() -- l_VT*sin()
     z_eff = z_VT * np.cos(alpha_t_rad) - l_VT * np.sin(alpha_t_rad)
 
     Cl_beta_w  = -(Gamma_rad * CL_alpha_w * c_r * b_w) / (6 * S_w)
@@ -426,7 +410,7 @@ def ga_aircraft():
     print(f"  Cn_beta  = {Cn_beta:.4f} /rad")
     print(f"  Cl_beta  = {Cl_beta:.4f} /rad")
 
-    # ── Roll-rate derivatives ─────────────────────────────
+    #  Roll-rate derivatives 
     CY_p2_VT = (2 / b_w) * (z_eff - z_VT) * CY_beta_VT
     CY_p2    = CY_p2_VT
 
@@ -444,7 +428,7 @@ def ga_aircraft():
     print(f"  Cl_p2    = {Cl_p2:.4f} /rad")
     print(f"  Cn_p2    = {Cn_p2:.4f} /rad")
 
-    # ── Yaw-rate derivatives ──────────────────────────────
+    #  Yaw-rate derivatives 
     CY_r1_VT = -(2 / b_w) * lVT_eff * CY_beta_VT
     Cl_r1_w  = CL_trim / 3
     Cl_r1_VT = (-(2 / b_w**2) * lVT_eff * z_eff * CY_beta_VT)
@@ -462,9 +446,9 @@ def ga_aircraft():
     print(f"  Cn_r2    = {Cn_r2:.4f} /rad")
     print(f"  Cl_r2    = {Cl_r2:.4f} /rad")
 
-    # ─────────────────────────────────────────────────────
+
     # (I) LATERAL-DIRECTIONAL DYNAMIC MODES (2nd-order)
-    # ─────────────────────────────────────────────────────
+
     sub_header("I) Lateral-Directional Dynamic Modes (Approximate)")
 
     qSb_Ixx = q_trim * S_w * b_w / I_xx
@@ -482,14 +466,14 @@ def ga_aircraft():
     L_r1    = qSb_Ixx * Cl_r1  * b_2V
     L_r2    = qSb_Ixx * Cl_r2  * b_2V
 
-    print(f"  N_beta  = {N_beta:.4f} /s²")
-    print(f"  Y_beta  = {Y_beta:.4f} m/s²")
-    print(f"  L_beta  = {L_beta:.4f} /s²")
-    print(f"  L_p2    = {L_p2:.4f} /s²")
-    print(f"  N_r1    = {N_r1:.4f} /s²")
-    print(f"  L_r1    = {L_r1:.4f} /s²")
+    print(f"  N_beta  = {N_beta:.4f} /s")
+    print(f"  Y_beta  = {Y_beta:.4f} m/s")
+    print(f"  L_beta  = {L_beta:.4f} /s")
+    print(f"  L_p2    = {L_p2:.4f} /s")
+    print(f"  N_r1    = {N_r1:.4f} /s")
+    print(f"  L_r1    = {L_r1:.4f} /s")
 
-    # Roll mode eigenvalue  (λ_r ≈ L_p2)
+    # Roll mode eigenvalue  (_r  L_p2)
     lambda_roll = L_p2
 
     # Dutch roll mode
@@ -515,12 +499,11 @@ def ga_aircraft():
     print(f"    lambda_s  = {lambda_spiral:.5f} /s  "
           f"({'STABLE' if lambda_spiral < 0 else 'UNSTABLE'})")
 
-    # ─────────────────────────────────────────────────────
     # (J) LATERAL-DIRECTIONAL A-MATRIX (Sec. 9.1.4)
-    # ─────────────────────────────────────────────────────
+  
     sub_header("J) Lateral-Directional State-Space Matrix A_lat-dir")
 
-    # State vector: [Δμ, Δμ̇, Δβ, Δβ̇]
+    # State vector: [, , , ]
     # from PDF Eq. 9.11
     Alat = np.array([
         [0.0,
@@ -548,11 +531,10 @@ def ga_aircraft():
     evals_lat = np.linalg.eigvals(Alat)
     print("\n  Eigenvalues of A_lat-dir:")
     for ev in evals_lat:
-        print(f"    λ = {ev.real:+.5f}  {'+' if ev.imag >= 0 else '-'}  j{abs(ev.imag):.5f}")
+        print(f"     = {ev.real:+.5f}  {'+' if ev.imag >= 0 else '-'}  j{abs(ev.imag):.5f}")
 
-    # ─────────────────────────────────────────────────────
     # (K) CONTROL DERIVATIVES (Sec. 9.1.4 end)
-    # ─────────────────────────────────────────────────────
+
     sub_header("K) Control Effectiveness & Derivatives")
 
     # Control effectiveness parameters (from PDF chart Fig 7.9)
@@ -564,13 +546,13 @@ def ga_aircraft():
     Cm_de   = -eta * V_HT * CL_alpha_HT * tau_de
 
     # Aileron (running 50-90% span)
-    # Integral: ∫c(y)*y dy from 0.5b to 0.9b with linear taper
+    # Integral: c(y)*y dy from 0.5b to 0.9b with linear taper
     y1, y2  = 0.5 * b_w, 0.9 * b_w
     integ   = ((y2**2 - y1**2) / 2
                + 2 * (y2**3 - y1**3) / (3 * b_w) * (lam - 1))
     Cl_da   = -2 * cl_alpha_w * tau_da / (S_w * b_w) * c_r * integ
 
-    Cn_da   = -(CD_alpha / cl_alpha_w) * abs(Cl_da)
+    Cn_da   = -(CD_alpha / cl_alpha_w) * Cl_da
     CY_da   = 0.0
 
     Cn_dr   = -V_VT * tau_dr * CL_alpha_VT
@@ -586,10 +568,10 @@ def ga_aircraft():
     print(f"  CY_dr  = {CY_dr:.4f} /rad")
     print(f"  Cl_dr  = {Cl_dr:.4f} /rad")
 
-    # ─────────────────────────────────────────────────────
+
     # SUMMARY TABLE
-    # ─────────────────────────────────────────────────────
-    section_header("AIRCRAFT – SUMMARY OF RESULTS")
+
+    section_header("AIRCRAFT -- SUMMARY OF RESULTS")
     results = {
         "Trim AoA (deg)"            : alpha_trim_deg,
         "Trim Speed V* (m/s)"       : V_trim,
@@ -603,27 +585,102 @@ def ga_aircraft():
                                         [abs(e.imag) for e in evals_long])]),
         "Phugoid omega_n (rad/s)"   : wn_Ph,
         "Phugoid zeta"              : zeta_Ph,
-        "Roll mode λ (1/s)"         : lambda_roll,
+        "Roll mode  (1/s)"         : lambda_roll,
         "Dutch-roll omega_n (rad/s)": wn_DR,
         "Dutch-roll zeta"           : zeta_DR,
-        "Spiral mode λ (1/s)"       : lambda_spiral,
+        "Spiral mode  (1/s)"       : lambda_spiral,
     }
     for k, v in results.items():
         print(f"  {k:<40s}: {v:.5f}")
 
 
+    # (L) EIGENVALUE PLOTS
+
+    section_header("L) Eigenvalue Plots")
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig.suptitle("UAV - Eigenvalue Analysis (Complex Plane)", fontsize=14, fontweight='bold')
+
+    # -- Longitudinal --
+    ax = axes[0]
+    ax.axhline(0, color='black', linewidth=0.8, linestyle='--')
+    ax.axvline(0, color='black', linewidth=0.8, linestyle='--')
+
+    mode_labels_long = []
+    for ev in evals_long:
+        wn = abs(ev)
+        if abs(ev.imag) > 0.05 and wn > 1.0:
+            label, color = "Short Period", 'royalblue'
+        elif abs(ev.imag) > 0.05:
+            label, color = "Phugoid", 'darkorange'
+        else:
+            label, color = "Real mode", 'green'
+        ax.plot(ev.real, ev.imag, 'o', color=color, markersize=10, zorder=5)
+        ax.annotate(
+            f"  ={ev.real:+.3f}{ev.imag:+.3f}j",
+            (ev.real, ev.imag), fontsize=7.5, color=color, va='center')
+        mode_labels_long.append((label, color))
+
+    seen = {}
+    for lbl, col in mode_labels_long:
+        seen[lbl] = col
+    legend_patches = [mpatches.Patch(color=c, label=l) for l, c in seen.items()]
+    ax.legend(handles=legend_patches, fontsize=9)
+    ax.set_xlabel("Real  (sigma)  [1/s]", fontsize=10)
+    ax.set_ylabel("Imaginary  (jw)  [1/s]", fontsize=10)
+    ax.set_title("Longitudinal Eigenvalues", fontsize=11)
+    ax.grid(True, linestyle=':', alpha=0.6)
+    ax.set_aspect('equal', adjustable='datalim')
+
+    # -- Lateral-Directional --
+    ax = axes[1]
+    ax.axhline(0, color='black', linewidth=0.8, linestyle='--')
+    ax.axvline(0, color='black', linewidth=0.8, linestyle='--')
+
+    mode_labels_lat = []
+    for ev in evals_lat:
+        wn = abs(ev)
+        if abs(ev.imag) > 0.05:
+            label, color = "Dutch Roll", 'crimson'
+        elif abs(ev.real) > 0.5:
+            label, color = "Roll Mode", 'royalblue'
+        else:
+            label, color = "Spiral Mode", 'darkorange'
+        ax.plot(ev.real, ev.imag, 's', color=color, markersize=10, zorder=5)
+        ax.annotate(
+            f"  ={ev.real:+.3f}{ev.imag:+.3f}j",
+            (ev.real, ev.imag), fontsize=7.5, color=color, va='center')
+        mode_labels_lat.append((label, color))
+
+    seen = {}
+    for lbl, col in mode_labels_lat:
+        seen[lbl] = col
+    legend_patches = [mpatches.Patch(color=c, label=l) for l, c in seen.items()]
+    ax.legend(handles=legend_patches, fontsize=9)
+    ax.set_xlabel("Real  (sigma)  [1/s]", fontsize=10)
+    ax.set_ylabel("Imaginary  (jw)  [1/s]", fontsize=10)
+    ax.set_title("Lateral-Directional Eigenvalues", fontsize=11)
+    ax.grid(True, linestyle=':', alpha=0.6)
+    ax.set_aspect('equal', adjustable='datalim')
+
+    plt.tight_layout()
+    plt.savefig("eigenvalue_plot.png", dpi=150, bbox_inches='tight')
+    plt.show()
+    print("\n  Eigenvalue plots saved to eigenvalue_plot.png")
 
 
-# ──────────────────────────────────────────────────────────
+
+
+
 # MAIN
-# ──────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     print("=" * 60)
     print("  FLIGHT DYNAMICS & STABILITY ANALYSIS")
-    print("  Chapter 9 Appendix – Case Studies")
+    print("  Chapter 9 Appendix -- Case Studies")
     print("=" * 60)
 
-    ga_aircraft()
+    aircraft()
   
     print("\n" + "=" * 60)
     print("  ANALYSIS COMPLETE")
