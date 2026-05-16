@@ -165,7 +165,7 @@ def ga_aircraft():
     # Wing lift coefficient at zero AoA
     CL0_w = CL_alpha_w * (alpha_L0_deg * D2R) * (-1)   # note: alpha_L0 is negative
     # PDF formula: CL0_w = CL_alpha_w × |alpha_L=0| × pi/180
-    CL0_w = CL_alpha_w * abs(alpha_L0_deg) * D2R
+    # CL0_w = CL_alpha_w * abs(alpha_L0_deg) * D2R
     print(f"  CL0_w        = {CL0_w:.4f}")
 
     # Downwash gradient  de/da
@@ -196,14 +196,14 @@ def ga_aircraft():
     Cm_alpha    = Cm_alpha_w + Cm_alpha_HT
 
     Cm0_HT = eta * V_HT * CL_alpha_HT * (i_t * D2R * (-1) + eps_0)
-    Cm0    = Cm_ac_w + eta * V_HT * CL_alpha_HT * (eps_0)
+    Cm0    = Cm_ac_w + eta * V_HT * CL_alpha_HT * (-i_t*D2R + eps_0)
 
     # Trim AoA (zero elevator deflection)
     alpha_trim_rad = -Cm0 / Cm_alpha
     alpha_trim_deg = alpha_trim_rad / D2R
 
     # Whole-aircraft CL_alpha and CL0
-    CL0 = (CL_alpha_w * abs(alpha_L0_deg) * D2R
+    CL0 = (CL_alpha_w * -alpha_L0_deg * D2R
            + eta * (S_HT / S_w) * CL_alpha_HT * (i_t * D2R - eps_0))
     CL_alpha = (CL_alpha_w
                 + eta * (S_HT / S_w) * CL_alpha_HT * (1 - eps_alpha))
@@ -571,7 +571,7 @@ def ga_aircraft():
                + 2 * (y2**3 - y1**3) / (3 * b_w) * (lam - 1))
     Cl_da   = -2 * cl_alpha_w * tau_da / (S_w * b_w) * c_r * integ
 
-    Cn_da   = -(CD_alpha / cl_alpha_w) * Cl_da
+    Cn_da   = -(CD_alpha / cl_alpha_w) * abs(Cl_da)
     CY_da   = 0.0
 
     Cn_dr   = -V_VT * tau_dr * CL_alpha_VT
