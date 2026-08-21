@@ -64,16 +64,20 @@ def boom_yloc(boom_xloc):
 
 booms_yloc = boom_yloc(booms_xloc)
 
-plt.scatter(booms_xloc, booms_yloc[0, :], label="Upper")
-plt.scatter(booms_xloc, booms_yloc[1, :], label="Lower")
+# plt.scatter(booms_xloc, booms_yloc[0, :], label="Upper")
+# plt.scatter(booms_xloc, booms_yloc[1, :], label="Lower")
 plt.legend()
 # plt.show()
 
 spar_skin_xloc = booms_skin_xloc[-1]*chord
 
 booms_skin_yloc = boom_yloc(spar_skin_xloc)
-plt.scatter(spar_skin_xloc, booms_skin_yloc[0, :], marker='x')
-plt.scatter(spar_skin_xloc, booms_skin_yloc[1, :], marker='x')
+
+for i in [12, 16, 20, 30, 52, 61, 65, 69]:
+    plt.scatter(s7055[i, 0], s7055[i, 1], marker='^', c='r')
+
+# plt.scatter(spar_skin_xloc, booms_skin_yloc[0, :], marker='x')
+# plt.scatter(spar_skin_xloc, booms_skin_yloc[1, :], marker='x')
 plt.show()
 
 # s1: stringer 1 (near LE)

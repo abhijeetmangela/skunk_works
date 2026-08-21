@@ -12,10 +12,11 @@ stringer_length = 20e-3     # Total Length of the L shape
 Skin_boom_array  = B_Area
 Skin_boom_x = s7055_x
 Skin_boom_y = s7055_y
-Stringer_boom_array = np.ones(4)*stringer_thickness
-Stringer_boom_x = []
-Stringer_boom_y = []
 num_top_stringers = 4
+Stringer_boom_array = np.ones(num_top_stringers)*stringer_thickness
+Stringer_boom_x = [s7055_x[i] for i in [12, 16, 20, 30, 52, 61, 65, 69]]
+Stringer_boom_y = [s7055_y[i] for i in [12, 16, 20, 30, 52, 61, 65, 69]]
+
 Sheer_flow_y = 5
 
 Centroid_y = (np.sum(Skin_boom_array[:, 0]*Skin_boom_y) + np.sum(Stringer_boom_array[:, 0]*Stringer_boom_y)) / (np.sum(Skin_boom_array[:, 0]) + np.sum(Stringer_boom_array[:, 0]))
