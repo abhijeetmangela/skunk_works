@@ -794,6 +794,33 @@ class ShearFlowGUI:
     # AIRFOIL PLOT
     # ========================================================
 
+    def show_empty_plot(self):
+        """Display the initial empty four-panel plot."""
+
+        for a in self.ax.flat:
+            a.clear()
+            a.grid(True, alpha=0.25)
+
+        self.ax[0, 0].set_title("Load an Airfoil DAT File")
+        self.ax[0, 1].set_title("Shear Flow - Skin Only")
+        self.ax[1, 0].set_title("Shear Flow - With Stringers")
+        self.ax[1, 1].set_title("Boom Area Distribution")
+
+        self.ax[0, 0].set_xlabel("x")
+        self.ax[0, 0].set_ylabel("y")
+
+        self.ax[0, 1].set_xlabel("x [m]")
+        self.ax[0, 1].set_ylabel("q [N/m]")
+
+        self.ax[1, 0].set_xlabel("x [m]")
+        self.ax[1, 0].set_ylabel("q [N/m]")
+
+        self.ax[1, 1].set_xlabel("x [m]")
+        self.ax[1, 1].set_ylabel("Boom area [m²]")
+
+        self.fig.tight_layout(pad=3)
+        self.canvas.draw()
+
     def show_airfoil(self):
 
         if self.data is None:
