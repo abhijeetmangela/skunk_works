@@ -35,6 +35,8 @@ tD = skin_thickness
 s7055_x = s7055[:, 0]
 s7055_y = s7055[:, 1]
 s7055_y_c = s7055[:, 1] - y_centroid
+s7055_dl = np.sqrt((np.diff(s7055_x)**2) + (np.diff(s7055_y_c)**2))
+s7055_dl = np.append(s7055_dl, np.sqrt((s7055_x[-1] - s7055_x[0])**2 + (s7055_y_c[-1] - s7055_y_c[0])**2))  # Append the last element to make it the same length as s7055_x
 
 # we will iignore the duplicate TE point in s7055 for the purpose of calculating boom areas
 
