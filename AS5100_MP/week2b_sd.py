@@ -78,11 +78,13 @@ for i in range(1, len(Total_boom_array)):
 print("Basic shear flow:")
 print(q_b_array)
 
-# q_s_0 = -np.sum(q_b_array*ds_array)/np.sum(ds_array) # formula for q_s_0 is derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. This is because the total shear flow in the skin must be equal to the total shear flow in the booms, as they are connected and must balance each other out. Therefore, we can calculate q_s_0 by taking the average of q_b over the length of the skin, which is given by the formula above.
+# Sheer center calculation
 
-# q_s_array = q_b_array + q_s_0
+q_s_0_SC = -np.sum(q_b_array*ds_array)/np.sum(ds_array) # formula for q_s_0 is derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. This is because the total shear flow in the skin must be equal to the total shear flow in the booms, as they are connected and must balance each other out. Therefore, we can calculate q_s_0 by taking the average of q_b over the length of the skin, which is given by the formula above.
 
-# not valid as wing is twisting, so q_s_0 is not constant along the length of the wing. Therefore, we cannot use the formula for q_s_0 derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. Instead, we need to calculate q_s_0 at each station along the wing, taking into account the twist and other factors that affect the shear flow in the skin.
+q_s_array_SC = q_b_array + q_s_0_SC
 
-            
+# not valid in real cases where the wing is twisting, so q_s_0 is not constant along the length of the wing. Therefore, we cannot use the formula for q_s_0 derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. Instead, we need to calculate q_s_0 at each station along the wing, taking into account the twist and other factors that affect the shear flow in the skin.
+
+
     
