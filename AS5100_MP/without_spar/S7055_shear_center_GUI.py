@@ -103,6 +103,9 @@ def calculate():
         skin_t = float(skin_t_var.get())
         stringer_t = float(stringer_t_var.get())
         stringer_L = float(stringer_L_var.get())
+        spar_xc = float(spar_xc_var.get())
+        spar_t = float(spar_t_var.get())
+        spar_flange_L = float(spar_flange_L_var.get())
 
         V = float(V_var.get())
 
@@ -112,6 +115,12 @@ def calculate():
 
         upper_xc = parse_array(upper_var.get())
         lower_xc = parse_array(lower_var.get())
+
+        if not 0.0 <= spar_xc <= 1.0:
+            raise ValueError("Spar x/c must be within 0 <= x/c <= 1.")
+
+        if spar_t < 0.0 or spar_flange_L < 0.0:
+            raise ValueError("Spar thickness and flange length must be non-negative.")
 
         # --------------------------------------------------------
         # AIRFOIL GEOMETRY
@@ -251,12 +260,30 @@ def calculate():
             lower_indices.append(i)
 
         # --------------------------------------------------------
+        # SPAR BOOMS
+        #
+        # The upper and lower spar flanges are represented by two
+        # discrete booms at the spar/skin intersections. The spar web
+        # carries shear and is therefore not included as a bending boom.
+        # --------------------------------------------------------
+
+        B_spar = np.zeros(n)
+        A_spar_boom = spar_t * spar_flange_L
+
+        upper_spar_index = nearest_surface_index(spar_xc, "upper")
+        lower_spar_index = nearest_surface_index(spar_xc, "lower")
+
+        B_spar[upper_spar_index] += A_spar_boom
+        B_spar[lower_spar_index] += A_spar_boom
+
+        # --------------------------------------------------------
         # TOTAL BOOM AREA
         # --------------------------------------------------------
 
         B_total = (
             B_skin +
-            B_stringer
+            B_stringer +
+            B_spar
         )
 
         # --------------------------------------------------------
@@ -479,7 +506,10 @@ def calculate():
             "T_shear": T_shear,
             "chord": chord,
             "upper_indices": upper_indices,
-            "lower_indices": lower_indices
+            "lower_indices": lower_indices,
+            "upper_spar_index": upper_spar_index,
+            "lower_spar_index": lower_spar_index,
+            "A_spar_boom": A_spar_boom
         }
 
         root.result = result
@@ -516,6 +546,11 @@ SECTION PROPERTIES
 Ixx                           = {Ixx:.6e} m^4
 Iyy                           = {Iyy:.6e} m^4
 Ixy                           = {Ixy:.6e} m^4
+
+SPAR BOOMS
+------------------------------------------------------------
+Spar x/c                      = {spar_xc:.6f}
+Area per spar boom            = {A_spar_boom:.6e} m^2
 
 MEDIAN-LINE CELL AREA
 ------------------------------------------------------------
