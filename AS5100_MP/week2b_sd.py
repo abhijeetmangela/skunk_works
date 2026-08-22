@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 plt.rc('font', size=16)
 np.set_printoptions(precision=3)
 
-from week2a_sd import B_Area, s7055_x, s7055_y
+from week2a_sd import B_Area, s7055_x, s7055_y, Xcp
 
 stringer_thickness = 0.5e-3
 stringer_length = 20e-3     # Total Length of the L shape
@@ -18,6 +18,8 @@ stringer_indices = np.array([12, 16, 20, 30, 52, 61, 65, 69])
 Stringer_boom_array = np.ones(num_stringers)*stringer_thickness*stringer_length
 Stringer_boom_x = np.array([s7055_x[i] for i in stringer_indices])
 Stringer_boom_y = np.array([s7055_y[i] for i in stringer_indices])
+Shear_flow_y = 5 # dummy value for sheet center calculation
+# Assume it to be on the shear center
 
 Total_boom_array = Skin_boom_array.copy()
 
@@ -29,7 +31,7 @@ for j, idx in enumerate(stringer_indices):
 ds_array = np.sqrt((np.diff(Skin_boom_x)**2) + (np.diff(Skin_boom_y)**2))
 ds_array = np.append(ds_array, np.sqrt((Skin_boom_x[-1] - Skin_boom_x[0])**2 + (Skin_boom_y[-1] - Skin_boom_y[0])**2))  # Append the last element to make it the same length as Skin_boom_array
 
-Sheer_flow_y = 5
+
 
 # compute the centroid of the cross-section
 
@@ -46,6 +48,8 @@ Skin_boom_x_centroid = Skin_boom_x - Centroid_x
 Stringer_boom_y_centroid = Stringer_boom_y - Centroid_y
 Stringer_boom_x_centroid = Stringer_boom_x - Centroid_x
 
+X_cp_centroid = Xcp - Centroid_x
+
 Centroidal_Ixx = np.sum(Skin_boom_array*Skin_boom_y_centroid**2) + np.sum(Stringer_boom_array*Stringer_boom_y_centroid**2)
 Centroidal_Iyy = np.sum(Skin_boom_array*Skin_boom_x_centroid**2) + np.sum(Stringer_boom_array*Stringer_boom_x_centroid**2)
 Centroidal_Ixy = np.sum(Skin_boom_array*Skin_boom_x_centroid*Skin_boom_y_centroid) + np.sum(Stringer_boom_array*Stringer_boom_x_centroid*Stringer_boom_y_centroid)
@@ -54,21 +58,21 @@ DR = Centroidal_Ixx*Centroidal_Iyy - Centroidal_Ixy**2
 
 print(f"Centroidal Ixx: {Centroidal_Ixx:.3f}, Centroidal Iyy: {Centroidal_Iyy:.3f}, Centroidal Ixy: {Centroidal_Ixy:.3f}, DR: {DR:.3f}")
 
-q_b_0 = 0
 
-q_b_array = np.array([q_b_0])
+q_b_array = np.array([0])
+
 print("initialised q_b_array: ", q_b_array)
 
 q_b_array = np.zeros(len(Total_boom_array))
 
-for i in range(1, len(Total_boom_array)):
+for i in range(1,len(Total_boom_array)):
 
     q_increment = (
-        Sheer_flow_y
-        * Total_boom_array[i]
+        Shear_flow_y
+        * Total_boom_array[i-1]
         * (
-            Centroidal_Ixy * Skin_boom_x_centroid[i]
-            - Centroidal_Ixx * Skin_boom_y_centroid[i]
+            Centroidal_Ixy * Skin_boom_x_centroid[i-]
+            - Centroidal_Ixx * Skin_boom_y_centroid[i-1]
         )
         / DR
     )

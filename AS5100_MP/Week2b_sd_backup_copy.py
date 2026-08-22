@@ -29,7 +29,7 @@ for j, idx in enumerate(stringer_indices):
 ds_array = np.sqrt((np.diff(Skin_boom_x)**2) + (np.diff(Skin_boom_y)**2))
 ds_array = np.append(ds_array, np.sqrt((Skin_boom_x[-1] - Skin_boom_x[0])**2 + (Skin_boom_y[-1] - Skin_boom_y[0])**2))  # Append the last element to make it the same length as Skin_boom_array
 
-Sheer_flow_y = 5
+Shear_flow_y = 5
 
 # compute the centroid of the cross-section
 
@@ -77,7 +77,7 @@ q_b_array = np.zeros(len(Total_boom_array))
 for i in range(1, len(Total_boom_array)):
 
     q_increment = (
-        Sheer_flow_y
+        Shear_flow_y
         * Total_boom_array[i]
         * (
             Centroidal_Ixy * Skin_boom_x_centroid[i]
