@@ -59,6 +59,19 @@ q_b_0 = 0
 q_b_array = np.array([q_b_0])
 print("initialised q_b_array: ", q_b_array)
 
+# for i in range(len(Skin_boom_array)):
+#     for j in range(len(Stringer_boom_array)):
+#         if j < num_top_stringers:
+#             while Skin_boom_x_centroid[i] > Stringer_boom_x_centroid[j]:
+#                 q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Skin_boom_array[i]*(Centroidal_Ixy*Skin_boom_x_centroid[i] - Centroidal_Ixx*Skin_boom_y_centroid[i] )/DR)
+
+#             q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Stringer_boom_array[j]*(Centroidal_Ixy*Stringer_boom_x_centroid[j] - Centroidal_Ixx*Stringer_boom_y_centroid[j] )/DR)
+#         else:
+#             while Skin_boom_x_centroid[i] < Stringer_boom_x_centroid[j]:
+#                 q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Skin_boom_array[i]*(Centroidal_Ixy*Skin_boom_x_centroid[i] - Centroidal_Ixx*Skin_boom_y_centroid[i] )/DR)
+
+#             q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Stringer_boom_array[j]*(Centroidal_Ixy*Stringer_boom_x_centroid[j] - Centroidal_Ixx*Stringer_boom_y_centroid[j] )/DR)
+
 q_b_array = np.zeros(len(Total_boom_array))
 
 for i in range(1, len(Total_boom_array)):
@@ -78,11 +91,33 @@ for i in range(1, len(Total_boom_array)):
 print("Basic shear flow:")
 print(q_b_array)
 
-# q_s_0 = -np.sum(q_b_array*ds_array)/np.sum(ds_array) # formula for q_s_0 is derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. This is because the total shear flow in the skin must be equal to the total shear flow in the booms, as they are connected and must balance each other out. Therefore, we can calculate q_s_0 by taking the average of q_b over the length of the skin, which is given by the formula above.
+# print(f"Shear Flow in the booms: {q_b_array}")
+# Wing_Ixx = np.sum(Skin_boom_array*Skin_boom_y**2) + np.sum(Stringer_boom_array*Stringer_boom_y**2)
+# Wing_Iyy = np.sum(Skin_boom_array*Skin_boom_x**2) + np.sum(Stringer_boom_array*Stringer_boom_x**2)
+# Wing_Ixy = np.sum(Skin_boom_array*Skin_boom_x*Skin_boom_y) + np.sum(Stringer_boom_array*Stringer_boom_x*Stringer_boom_y)
 
-# q_s_array = q_b_array + q_s_0
+# DR = Wing_Ixx*Wing_Iyy - Wing_Ixy**2
 
-# not valid as wing is twisting, so q_s_0 is not constant along the length of the wing. Therefore, we cannot use the formula for q_s_0 derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. Instead, we need to calculate q_s_0 at each station along the wing, taking into account the twist and other factors that affect the shear flow in the skin.
+# q_b_0 = 0
+
+# q_b_array = np.array([q_b_0])
+
+# for i in range(len(Skin_boom_array)):
+#     for j in range(len(Stringer_boom_array)):
+#         if j < num_top_stringers:
+#             while Skin_boom_x[i] > Stringer_boom_x[j]:
+#                 q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Skin_boom_array[i, 0]*(Wing_Ixy*Skin_boom_x[i] - Wing_Ixx*Skin_boom_y[i] )/DR)
+
+#             q_b_0 = q_b_array[-1] + Sheer_flow_y*Stringer_boom_array[j]*(Wing_Ixy*Stringer_boom_x[j] - Wing_Ixx*Stringer_boom_y[j] )/DR
+#         else:
+#             while Skin_boom_x[i] < Stringer_boom_x[j]:
+#                 q_b_array = np.append(q_b_array, q_b_array[-1] + Sheer_flow_y*Skin_boom_array[i, 0]*(Wing_Ixy*Skin_boom_x[i] - Wing_Ixx*Skin_boom_y[i] )/DR)
+
+#             q_b_0 = q_b_array[-1] + Sheer_flow_y*Stringer_boom_array[j]*(Wing_Ixy*Stringer_boom_x[j] - Wing_Ixx*Stringer_boom_y[j] )/DR
+
+q_s_0 = np.sum(q_b_array*ds_array)/np.sum(ds_array) # formula for q_s_0 is derived from the fact that the integral of q_s over the length of the skin must equal the integral of q_b over the length of the skin. This is because the total shear flow in the skin must be equal to the total shear flow in the booms, as they are connected and must balance each other out. Therefore, we can calculate q_s_0 by taking the average of q_b over the length of the skin, which is given by the formula above.
+
+
 
             
     
