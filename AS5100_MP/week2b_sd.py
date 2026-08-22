@@ -71,7 +71,7 @@ for i in range(1,len(Total_boom_array)):
         Shear_flow_y
         * Total_boom_array[i-1]
         * (
-            Centroidal_Ixy * Skin_boom_x_centroid[i-]
+            Centroidal_Ixy * Skin_boom_x_centroid[i-1]
             - Centroidal_Ixx * Skin_boom_y_centroid[i-1]
         )
         / DR
