@@ -44,7 +44,7 @@ s7055_dl = np.append(s7055_dl, np.sqrt((s7055_x[-1] - s7055_x[0])**2 + (s7055_y_
 
 B_Area = np.zeros(n_pt)
 
-for i in range(1, s7055.shape[0] - 1):
+for i in range(1, n_pt):
     Bi = (tD/6)*(s7055_dl[i - 1]*(2 + s7055_y_c[i - 1]/s7055_y_c[i]) + s7055_dl[i]*(2 + s7055_y_c[i + 1]/s7055_y_c[i]))
     B_Area[i] = Bi
 
@@ -52,4 +52,4 @@ s7055_x  = s7055_x[:-1] # delete duplicate TE point
 s7055_y  = s7055_y[:-1] # delete duplicate TE point 
 s7055_y_c = s7055_y_c[:-1] # delete duplicate TE point
 
-B_Area[0] = (tD/6)*(s7055_dl[-1]*(2 + s7055_y_c[-2]/s7055_y_c[-1]) + s7055_dl[0]*(2 + s7055_y_c[1]/s7055_y_c[0]))
+B_Area[0] = (tD/6)*(s7055_dl[-1]*(2 + s7055_y_c[-1]/s7055_y_c[0]) + s7055_dl[0]*(2 + s7055_y_c[1]/s7055_y_c[0]))
