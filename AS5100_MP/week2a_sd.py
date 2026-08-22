@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 plt.rc('font', size=16)
-np.set_printoptions(precision=3)
+np.set_printoptions(precision=8)
 
 from week1_sd import chord, s7055, skin_thickness, s7055_dl, y_centroid
 
