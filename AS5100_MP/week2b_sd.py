@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 plt.rc('font', size=16)
-np.set_printoptions(precision=3)
+np.set_printoptions(precision=8)
 
 from week2a_sd import B_Area, s7055_x, s7055_y, Xcp
 
