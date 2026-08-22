@@ -20,14 +20,14 @@ wing_root_tip_len = 850e-3
 aileron_inner_edge = 550e-3     # From Wing Root
 rib_spanwise_position = np.array([0, 75, 150, 250, 350, 450, 550, 700, 850])*1e-3
 
-def len_from_TE(indices):
-    spacing = np.zeros(indices.shape[0] + 1)
-    for i in range(len(indices)):
-        if i != 0 or i != len(indices) - 1:
-            spacing[i] = np.sum(s7055_dl[:indices[i] + 1]) - np.sum(s7055_dl[:indices[i-1] + 1])
-        if i == 0:
-            spacing[i] = np.sum(s7055_dl[:indices[i] + 1])
-        if 
+# def len_from_TE(indices):
+#     spacing = np.zeros(indices.shape[0] + 1)
+#     for i in range(len(indices)):
+#         if i != 0 or i != len(indices) - 1:
+#             spacing[i] = np.sum(s7055_dl[:indices[i] + 1]) - np.sum(s7055_dl[:indices[i-1] + 1])
+#         if i == 0:
+#             spacing[i] = np.sum(s7055_dl[:indices[i] + 1])
+#         if 
 
 # Spacing from TE through Upper, then Lower Surface back to TE
 stringers_spacing = []
