@@ -19,7 +19,7 @@ skin_thickness = 0.0005
 str_area = 10.0 * 0.001 * 0.001
 
 # Material / plate constants
-E = 70e9
+E = 69e9
 nu = 0.33
 
 # Shear force [N]
@@ -29,7 +29,7 @@ Vy = 100.0
 a = 0.20
 
 # Number of stringers on upper surface
-iu = 2
+iu = 4
 
 # Upper stringer indices
 # MATLAB indexing starts at 1, Python starts at 0.
@@ -39,18 +39,18 @@ iu = 2
 # ============================================================
 
 # Number of stringers
-iu = 2
-il = 2
+iu = 4
+il = 4
 
-# MATLAB-style panel boundary indices:
-# 1 = first point
-# 49 = last point
-iu_ind_matlab = np.array([1, 13, 25, 49])
-il_ind_matlab = np.array([1, 13, 25, 49])
+# # MATLAB-style panel boundary indices:
+# # 1 = first point
+# # 49 = last point
+# iu_ind_matlab = np.array([1, 13, 25, 49])
+# il_ind_matlab = np.array([1, 13, 25, 49])
 
-# Convert MATLAB indices to Python indices
-iu_ind = iu_ind_matlab - 1
-il_ind = il_ind_matlab - 1
+# # Convert MATLAB indices to Python indices
+# iu_ind = iu_ind_matlab - 1
+# il_ind = il_ind_matlab - 1
 
 # Plot settings
 font_size = 18
@@ -152,6 +152,33 @@ data1 = np.loadtxt(filename)
 data = data1 * c
 
 L = len(data)
+# mid = (L - 1) //2
+
+# iu_ind = np.linspace(0,   mid,   iu + 2).round().astype(int)
+# il_ind = np.linspace(mid, L - 1, il + 2).round().astype(int)
+
+iu_ind = np.array([0, 12, 16, 20, 30, 42])   # pick whichever point indices you want
+il_ind = np.array([42, 52, 61, 65, 69, 80])
+
+stringer_idx = np.concatenate([iu_ind[1:-1], il_ind[1:-1]])
+plt.figure(figsize=(10, 4))
+plt.plot(data[:, 0], data[:, 1], 'k-', linewidth=1.5, label="Airfoil")
+plt.scatter(data[stringer_idx, 0], data[stringer_idx, 1],
+            s=80, c='red', zorder=5, label="Stringers")
+ 
+for i in stringer_idx:
+    plt.annotate(f"{data[i,0]:.3f}", (data[i,0], data[i,1]),
+                 textcoords="offset points", xytext=(0, 8), fontsize=8, ha='center')
+ 
+plt.axis("equal")
+plt.grid(True, alpha=0.3)
+plt.xlabel("x [m]")
+plt.ylabel("y [m]")
+plt.title("Stringer Positions on Airfoil")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
 
 # Allocate arrays
 dis = np.zeros(L - 1)
@@ -391,7 +418,7 @@ for i in range(iu):
 
 # Lower surface stringers
 for i in range(il):
-    idx = il_ind[i + 1] + mid
+    idx = il_ind[i + 1]
     a_boom2[idx] += str_area
 
 
@@ -447,8 +474,8 @@ print("========================================")
 
 for i in range(il + 1):
 
-    start = il_ind[i] + mid
-    end = il_ind[i + 1] + mid
+    start = il_ind[i]
+    end = il_ind[i + 1] 
 
     q_panel = qs2[start:end] + q02
 
@@ -558,8 +585,8 @@ for i in range(iu + 1):
 
 for i in range(il + 1):
 
-    start = il_ind[i] + mid
-    end = il_ind[i + 1] + mid
+    start = il_ind[i] 
+    end = il_ind[i + 1] 
 
     plt.plot(
         data[start:end + 1, 0] + cg[0],
