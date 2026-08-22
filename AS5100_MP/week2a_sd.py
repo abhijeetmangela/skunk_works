@@ -36,6 +36,8 @@ s7055_x = s7055[:, 0]
 s7055_y = s7055[:, 1]
 s7055_y_c = s7055[:, 1] - y_centroid
 
+# we will iignore the duplicate TE point in s7055 for the purpose of calculating boom areas
+
 # Note that s7055 has a duplicate TE, but B_Area doesn't have duplicate TE
 
 B_Area = np.zeros(n_pt)
@@ -43,5 +45,9 @@ B_Area = np.zeros(n_pt)
 for i in range(1, s7055.shape[0] - 1):
     Bi = (tD/6)*(s7055_dl[i - 1]*(2 + s7055_y_c[i - 1]/s7055_y_c[i]) + s7055_dl[i]*(2 + s7055_y_c[i + 1]/s7055_y_c[i]))
     B_Area[i] = Bi
+
+s7055_x  = s7055_x[:-1] # delete duplicate TE point
+s7055_y  = s7055_y[:-1] # delete duplicate TE point 
+s7055_y_c = s7055_y_c[:-1] # delete duplicate TE point
 
 B_Area[0] = (tD/6)*(s7055_dl[-1]*(2 + s7055_y_c[-2]/s7055_y_c[-1]) + s7055_dl[0]*(2 + s7055_y_c[1]/s7055_y_c[0]))
