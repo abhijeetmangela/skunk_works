@@ -38,7 +38,7 @@ W = 6.9*9.81
 x = np.linspace(0, b/2, 100)
 
 c_elliptical = 4*S*np.sqrt(1 - (2*x/b)**2)/(np.pi*b)
-c_rectangular = 0.265
+c_rectangular = 0.265*np.ones_like(x)
 
 # Evaluating Schrenk Equivalent Chord
 c_schrenk = (c_rectangular + c_elliptical)/2
@@ -48,19 +48,21 @@ k = (W/2)/np.trapz(y=c_schrenk, x=x)
 
 q_schrenk = k*c_schrenk
 q_elliptical = k*c_elliptical
+q_rectangular = k*c_rectangular
 
 
-# # Lift Distribution Plot
-# plt.figure(figsize=(10, 6))
-# plt.plot(x, q_schrenk, label="Schrenk Approximated")
-# plt.plot(x, q_elliptical, label="Elliptical")
-# plt.title("Half Span - Lift Distribution")
-# plt.ylabel("Distributed Load (N/m)")
-# plt.xlabel("Span (m)")
-# plt.grid()
-# plt.legend()
-# plt.xlim(0, 1)
-# plt.show()
+# Lift Distribution Plot
+plt.figure(figsize=(10, 6))
+plt.plot(x, q_schrenk, label="Schrenk Approximated")
+plt.plot(x, q_elliptical, label="Elliptical")
+plt.plot(x, q_rectangular, label="Rectangular")
+plt.title("Half Span - Lift Distribution")
+plt.ylabel("Distributed Load (N/m)")
+plt.xlabel("Span (m)")
+plt.grid()
+plt.legend()
+plt.xlim(0, 1)
+plt.show()
 
 
 # Calculating Shear Force and Bending Moment 
@@ -74,32 +76,32 @@ for i in range(len(M)):
 np.savetxt("spanwise_shear_force.csv", np.column_stack((x, V)), delimiter=',')
 
 
-# # Shear Force Diagram
-# plt.figure(figsize=(10, 6))
-# plt.plot(x, V, label="Shear Force")
-# idx_Vmax = np.argmax(np.abs(V))
-# plt.scatter(idx_Vmax, -np.max(np.abs(V)), marker='^', c='r', s=75, label=f"Maximum Shear Force (Magnitude) = {max(abs(V)):.3g} N")
-# plt.title("Half Span - Shear Force Diagram")
-# plt.xlabel("Span (m)")
-# plt.ylabel("Shear Force (N)")
-# # plt.xlim(0, 1)
-# plt.legend()
-# plt.grid()
-# plt.show()
+# Shear Force Diagram
+plt.figure(figsize=(10, 6))
+plt.plot(x, V, label="Shear Force")
+idx_Vmax = np.argmax(np.abs(V))
+plt.scatter(idx_Vmax, -np.max(np.abs(V)), marker='^', c='r', s=75, label=f"Maximum Shear Force (Magnitude) = {max(abs(V)):.3g} N")
+plt.title("Half Span - Shear Force Diagram")
+plt.xlabel("Span (m)")
+plt.ylabel("Shear Force (N)")
+# plt.xlim(0, 1)
+plt.legend()
+plt.grid()
+plt.show()
 
 
-# # Bending Moment Diagram
-# plt.figure(figsize=(10, 6))
-# plt.plot(x, M, label="Bending Moment")
-# idx_Mmax = np.argmax(M)
-# plt.scatter(idx_Mmax, np.max(M), marker='^', c='r', s=75, label=f"Maximum Bending Moment (Magnitude) = {max(abs(M)):.3g} Nm")
-# plt.title("Half Span - Bending Moment Diagram")
-# plt.xlabel("Span (m)")
-# plt.ylabel("Bending Moment (Nm)")
-# # plt.xlim(0, 1)
-# plt.legend()
-# plt.grid()
-# plt.show()
+# Bending Moment Diagram
+plt.figure(figsize=(10, 6))
+plt.plot(x, M, label="Bending Moment")
+idx_Mmax = np.argmax(M)
+plt.scatter(idx_Mmax, np.max(M), marker='^', c='r', s=75, label=f"Maximum Bending Moment (Magnitude) = {max(abs(M)):.3g} Nm")
+plt.title("Half Span - Bending Moment Diagram")
+plt.xlabel("Span (m)")
+plt.ylabel("Bending Moment (Nm)")
+# plt.xlim(0, 1)
+plt.legend()
+plt.grid()
+plt.show()
 
 
 
