@@ -39,8 +39,8 @@ iu = 4
 # ============================================================
 
 # Number of stringers
-iu = 4
-il = 4
+iu = 2
+il = 2
 
 # # MATLAB-style panel boundary indices:
 # # 1 = first point
@@ -157,8 +157,8 @@ L = len(data)
 # iu_ind = np.linspace(0,   mid,   iu + 2).round().astype(int)
 # il_ind = np.linspace(mid, L - 1, il + 2).round().astype(int)
 
-iu_ind = np.array([0, 16, 30, 42])   # pick whichever point indices you want
-il_ind = np.array([42, 52, 65, 80])
+iu_ind = np.array([0, 16, 25, 42])   # pick whichever point indices you want
+il_ind = np.array([42, 57, 65, 80])
 
 plt.rc('font', size = 16)
 stringer_idx = np.concatenate([iu_ind[1:-1], il_ind[1:-1]])
@@ -579,8 +579,7 @@ for i in range(iu + 1):
         data[centre, 0] + cg[0],
         data[centre, 1] + cg[1] + 0.00234,
         f"Panel {i + 1}",
-        fontsize=font_size,
-        fontweight="bold"
+        fontsize=font_size
     )
 
 
@@ -622,13 +621,133 @@ plt.ylim(
 plt.xlabel("x [m]")
 plt.ylabel("y [m]")
 plt.title(
-    "Section 3 with Stringers",
-    fontsize=title_size,
-    fontweight="bold"
+    "Aileron Section with stringers",
+    fontsize=title_size
 )
 
 plt.tick_params(labelsize=font_size)
 plt.tight_layout()
+plt.show()
+
+
+
+
+plt.figure(figsize=(12, 8))
+
+label_offset = 0.01
+
+
+def plot_panel(start, end, label):
+
+    # Panel coordinates
+    x = data[start:end + 1, 0] + cg[0]
+    y = data[start:end + 1, 1] + cg[1]
+
+    plt.plot(
+        x,
+        y,
+        linewidth=2
+    )
+
+    # Panel midpoint
+    xm = 0.5 * (x[0] + x[-1])
+    ym = 0.5 * (y[0] + y[-1])
+
+    # Panel direction
+    dx = x[-1] - x[0]
+    dy = y[-1] - y[0]
+
+    length = np.hypot(dx, dy)
+
+    # Unit normal vector
+    nx = -dy / length
+    ny = dx / length
+
+    # Label position
+    xl = xm - label_offset * nx
+    yl = ym - label_offset * ny
+
+    plt.text(
+        xl,
+        yl,
+        label,
+        fontsize=font_size,
+        ha="center",
+        va="center"
+    )
+
+
+# --------------------------------------------------
+# Upper panels
+# --------------------------------------------------
+
+for i in range(iu + 1):
+
+    start = iu_ind[i]
+    end = iu_ind[i + 1]
+
+    plot_panel(
+        start,
+        end,
+        f"Panel {i + 1}"
+    )
+
+
+# --------------------------------------------------
+# Lower panels
+# --------------------------------------------------
+
+for i in range(il + 1):
+
+    start = il_ind[i]
+    end = il_ind[i + 1]
+
+    plot_panel(
+        start,
+        end,
+        f"Panel {iu + 2 + i}"
+    )
+
+
+# --------------------------------------------------
+# Plot formatting
+# --------------------------------------------------
+
+plt.axis("equal")
+plt.grid(True)
+
+plt.xlim(
+    np.min(data[:, 0] + cg[0]) - 0.01,
+    np.max(data[:, 0] + cg[0]) + 0.01
+)
+
+plt.ylim(
+    np.min(data[:, 1] + cg[1]) - 0.011,
+    np.max(data[:, 1] + cg[1]) + 0.011
+)
+
+plt.xlabel(
+    "x [m]",
+    fontsize=font_size
+)
+
+plt.ylabel(
+    "y [m]",
+    fontsize=font_size
+)
+
+plt.title(
+    "Aileron Section with spar and stringers",
+    fontsize=title_size
+)
+
+plt.tick_params(
+    labelsize=font_size
+)
+
+plt.tight_layout()
+plt.show()
+
 
 
 # ============================================================
