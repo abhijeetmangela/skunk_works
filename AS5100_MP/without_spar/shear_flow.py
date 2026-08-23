@@ -157,23 +157,24 @@ L = len(data)
 # iu_ind = np.linspace(0,   mid,   iu + 2).round().astype(int)
 # il_ind = np.linspace(mid, L - 1, il + 2).round().astype(int)
 
-iu_ind = np.array([0, 12, 16, 20, 30, 42])   # pick whichever point indices you want
-il_ind = np.array([42, 52, 61, 65, 69, 80])
+iu_ind = np.array([0, 16, 30, 42])   # pick whichever point indices you want
+il_ind = np.array([42, 52, 65, 80])
 
+plt.rc('font', size = 16)
 stringer_idx = np.concatenate([iu_ind[1:-1], il_ind[1:-1]])
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(10, 5))
 plt.plot(data[:, 0], data[:, 1], 'k-', linewidth=1.5, label="Airfoil")
 plt.scatter(data[stringer_idx, 0], data[stringer_idx, 1],
-            s=80, c='red', zorder=5, label="Stringers")
+            s=80, c='red', zorder=5, label="Stringers (with x coordinate)")
  
 for i in stringer_idx:
     plt.annotate(f"{data[i,0]:.3f}", (data[i,0], data[i,1]),
-                 textcoords="offset points", xytext=(0, 8), fontsize=8, ha='center')
+                 textcoords="offset points", xytext=(0, 8), fontsize=14, ha='center')
  
 plt.axis("equal")
 plt.grid(True, alpha=0.3)
-plt.xlabel("x [m]")
-plt.ylabel("y [m]")
+plt.xlabel("x (m)")
+plt.ylabel("y (m)")
 plt.title("Stringer Positions on Airfoil")
 plt.legend()
 plt.tight_layout()
