@@ -27,7 +27,7 @@ a_param = 0.20                  # rib spacing [m]
 # Stringers are specified as fractions of the distance along each surface.
 # 0.15 and 0.30 reproduce approximately the old MATLAB locations 8 and 15
 # for the 49-point surface used by the FX63137 model.
-STRINGER_FRACTIONS = [0.15, 0.30]
+STRINGER_FRACTIONS = [0.16, 0.49, 0.645, 0.785]
 
 # Stringer cross-sectional area [m^2]
 str_area = 10e-3 * 1e-3
