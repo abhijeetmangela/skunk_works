@@ -12,16 +12,11 @@ def sfd_bmd_fuse(L, p_pos, p_mag, npts=5000):
     p_pos = np.asarray(p_pos, dtype=float).flatten()
     p_mag = np.asarray(p_mag, dtype=float).flatten()
 
-    # # Check that positions and magnitudes have the same length
-    # if len(p_pos) != len(p_mag):
-    #     raise ValueError("p_pos and p_mag must have the same length.")
 
     # Discretized x-coordinate
     x_grid = np.linspace(0, L, npts)
 
     # Shear force
-
-
     # True wherever load position <= x
     ind = p_pos[:, np.newaxis] <= x_grid[np.newaxis, :]
 
