@@ -6,49 +6,87 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def sfd_bmd_fuse(L, p_pos, p_mag, npts=5000):
-    
-    # Convert inputs to 1D NumPy arrays
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def sfd_bmd_fuse(L, p_pos, p_mag, m_pos=None, m_mag=None, npts=5000):
+
+    # Convert point-force inputs to 1D NumPy arrays
     p_pos = np.asarray(p_pos, dtype=float).flatten()
     p_mag = np.asarray(p_mag, dtype=float).flatten()
 
+    # Handle point moments
+    if m_pos is None:
+        m_pos = np.array([])
+        m_mag = np.array([])
+    else:
+        m_pos = np.asarray(m_pos, dtype=float).flatten()
+        m_mag = np.asarray(m_mag, dtype=float).flatten()
 
     # Discretized x-coordinate
     x_grid = np.linspace(0, L, npts)
 
-    # Shear force
-    # True wherever load position <= x
+    # SHEAR FORCE DIAGRAM
+
+    # True wherever point load position <= x
     ind = p_pos[:, np.newaxis] <= x_grid[np.newaxis, :]
 
-    # Sum all loads that have been encountered
-    V = -np.sum(p_mag[:, np.newaxis] * ind, axis=0)
+    # Sum all point loads encountered
+    V = -np.sum(
+        p_mag[:, np.newaxis] * ind,
+        axis=0
+    )
 
-
-    # Bending moment
-
+    # BENDING MOMENT FROM POINT FORCES
 
     dx = x_grid[np.newaxis, :] - p_pos[:, np.newaxis]
+
+    # Only loads to the left of x contribute
     dx[dx < 0] = 0
 
-    M = -np.sum(p_mag[:, np.newaxis] * dx, axis=0)
+    M = -np.sum(
+        p_mag[:, np.newaxis] * dx,
+        axis=0
+    )
 
-    # Plot SFD and BMD
+    # BENDING MOMENT FROM POINT MOMENTS
 
+    if len(m_pos) > 0:
+
+        # A point moment causes a step/jump in the BMD
+        moment_ind = m_pos[:, np.newaxis] <= x_grid[np.newaxis, :]
+
+        M += np.sum(
+            m_mag[:, np.newaxis] * moment_ind,
+            axis=0
+        )
+
+
+    # PLOT SFD AND BMD
 
     fig, axes = plt.subplots(2, 1, figsize=(10, 7))
 
+    # -------------------------
     # Shear Force Diagram
+    # -------------------------
+
     axes[0].plot(x_grid, V, linewidth=1.8)
-    axes[0].set_xlabel("x")
-    axes[0].set_ylabel("Shear V(x)")
-    axes[0].set_title("Shear Force Diagram (No Supports)")
+
+    axes[0].set_xlabel("x (m)")
+    axes[0].set_ylabel("Shear V(x) (N)")
+    axes[0].set_title("Shear Force Diagram")
     axes[0].grid(True)
 
+    # -------------------------
     # Bending Moment Diagram
+    # -------------------------
+
     axes[1].plot(x_grid, M, linewidth=1.8)
-    axes[1].set_xlabel("x")
-    axes[1].set_ylabel("Moment M(x)")
-    axes[1].set_title("Bending Moment Diagram (No Supports)")
+
+    axes[1].set_xlabel("x (m)")
+    axes[1].set_ylabel("Moment M(x) (N·m)")
+    axes[1].set_title("Bending Moment Diagram")
     axes[1].grid(True)
 
     plt.tight_layout()
@@ -56,12 +94,26 @@ def sfd_bmd_fuse(L, p_pos, p_mag, npts=5000):
 
     return x_grid, V, M
 
+
+# EXAMPLE
+
 L = 10
 
-p_pos = [2, 5, 6, 8]      # load locations in meters
-p_mag = [100, 200,-450, 150]  # downward loads in Newtons
+# Point forces
+p_pos = [2, 5, 6, 8]
+p_mag = [100, 200, -450, 150]
 
-x, V, M = sfd_bmd_fuse(L, p_pos, p_mag)
+# Point moments
+m_pos = [3, 7]
+m_mag = [500, -300]
+
+x, V, M = sfd_bmd_fuse(
+    L,
+    p_pos,
+    p_mag,
+    m_pos,
+    m_mag
+)
 
 V_max = np.max(np.abs(V))       # N
 M_max = np.max(np.abs(M))       # N.m
