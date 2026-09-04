@@ -69,7 +69,7 @@ M_max = np.max(np.abs(M))       # N.m
 h_f = 0.18 # maximum height. Change this 
 t = 0.0005 # thickness of the plate
 
-A = 0 # no longerons for now
+A = 1 # no longerons for now
 
 I_skin = (h_f**4 / 12) - ((h_f - t)**4 / 12)
 I_boom = 4 * A * h_f * h_f * 0.25
@@ -81,19 +81,19 @@ sig_all = sig_yield / FOS
 
 I_req = M_max * h_f / (2 * sig_all)
 
-if I_req > I_skin:
-    print("Longeron is required to withstand bending moment of fuselage")
+if I_req > I_skin + I_boom:
+    print("Longeron is not enough to withstand bending moment of fuselage")
 else:
-    print("Longeron is not required to withstand bending moment")
+    print("Longeron is enough to withstand bending moment")
 
 # Shear Flow & F_cr Calculation of Fuselage
 
 I_xx = I_skin + I_boom
 # Maximum shear flow
-q_max = (3 * V_max * t * h_f**2) / (8 * I_xx)
+q_max = (3 * V_max * t * h_f**2) / (8 * I_xx) # at the midpoint of the side webbs 
 
 # Maximum shear stress
-tau_max = q_max / t             # Pa
+tau_max = q_max / t # Pa
 
 a = 0.1 # m, distance between bulkheads, check this value
 b = 0.36 # m, distance between longerons, 2* height of fuselage, check this value
@@ -108,17 +108,17 @@ Kss = 5.34 + 4 * (b / a)**2
 
 F_cr = (
     Kss * np.pi**2 * E
-    / (12 * (1 - nu**2))
+    / (12 * (1 - nu**2)) 
 ) * (t / b)**2 * Ra # Pa
 
-F_cr = F_cr / FOS
+F_cr = F_cr / FOS 
 
 # Buckling Check
 
 if tau_max > F_cr:
-    print("Buckled, Longeron is required")
+    print("Buckled")
 else:
-    print("Not Buckled, Longeron is not required")
+    print("Not Buckled")
 
 print("\n------ Results ------")
 print(f"V_max   = {V_max:.4f} N")
