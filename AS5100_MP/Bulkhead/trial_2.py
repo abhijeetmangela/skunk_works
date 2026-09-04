@@ -119,11 +119,12 @@ V_max = np.max(np.abs(V))       # N
 M_max = np.max(np.abs(M))       # N.m
 
 h_f = 0.18 # maximum height. Change this 
+b_f = 0.36 # maximum width. Change this
 t = 0.0005 # thickness of the plate
 
 A = 1 # no longerons for now
 
-I_skin = (h_f**4 / 12) - ((h_f - t)**4 / 12)
+I_skin = (1/12)*(b_f * h_f**3 - (b_f - t) * (h_f - 2*t)**3) #(h_f**4 / 12) - ((h_f - t)**4 / 12)
 I_boom = 4 * A * h_f * h_f * 0.25
 
 sig_yield = 95000000
@@ -167,7 +168,7 @@ F_cr = F_cr / FOS
 
 # Buckling Check
 
-if tau_max > F_cr:
+if q_max > F_cr: 
     print("Buckled")
 else:
     print("Not Buckled")
