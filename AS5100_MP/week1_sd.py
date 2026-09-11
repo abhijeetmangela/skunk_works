@@ -124,17 +124,17 @@ y_centroid = np.sum(s7055_midpt[:, 1]*dA_lump)/A_skin
 Ixx_skin = np.sum((s7055_midpt[:, 1] - y_centroid)**2*dA_lump)
 print(f"Ixx (skin) = {Ixx_skin:.3g} m^4")
 
-# # Airfoil Plot (Coordinates, Mid Points & Neutral Axis)
-# plt.figure(figsize=(10, 6))
-# plt.plot(s7055[:, 0], s7055[:, 1], label="Airfoil Coordinates")
-# plt.scatter(s7055_midpt[:, 0], s7055_midpt[:, 1], s=3, label="Panel Midpoint")
-# plt.hlines(y=y_centroid, xmin=0, xmax=chord, linestyle="--", color='r', label="Neutral Axis")
-# plt.title("Airfoil Coordinates")
-# plt.xlabel('X Axis')
-# plt.ylabel('Z Axis')
-# plt.legend()
-# plt.axis('equal')
-# plt.show()
+# Airfoil Plot (Coordinates, Mid Points & Neutral Axis)
+plt.figure(figsize=(10, 6))
+plt.plot(s7055[:, 0], s7055[:, 1], label="Airfoil Coordinates")
+#plt.scatter(s7055_midpt[:, 0], s7055_midpt[:, 1], s=3, label="Panel Midpoint")
+plt.hlines(y=y_centroid, xmin=0, xmax=chord, linestyle="--", color='r', label="Neutral Axis")
+plt.title("Airfoil Coordinates")
+plt.xlabel('X Axis')
+plt.ylabel('Z Axis')
+plt.legend()
+plt.axis('equal')
+plt.show()
 
 
 # Part 3
@@ -155,16 +155,16 @@ print(f"Stress (Design) = {stress_design*1e-6:.3g} MPa")
 Ixx_required = (M*airfoil_max_thickness/2)/stress_design
 print(f"Ixx (required, max) = {np.max(Ixx_required):.3g} m^4")
 
-# # Plots of Second Moment of Area
-# plt.figure(figsize=(10, 6))
-# plt.plot(x, Ixx_required, label="Requirement of Wing\n(Maximum $I_{xx}$ = "+f"{np.max(Ixx_required):.3g} $m^4$)")
-# plt.hlines(y=Ixx_skin, xmin=0, xmax=b/2, linestyle="--", color='r', label="Skin")
-# plt.title("Requirement of Second Moment of Area - Spanwise")
-# plt.ylabel("Second Moment of Area $(m^4)$")
-# plt.xlabel("Span (m)")
-# plt.grid()
-# plt.legend()
-# plt.show()
+# Plots of Second Moment of Area
+plt.figure(figsize=(10, 6))
+plt.plot(x, Ixx_required, label="Requirement of Wing\n(Maximum $I_{xx}$ = "+f"{np.max(Ixx_required):.3g} $m^4$)")
+plt.hlines(y=Ixx_skin, xmin=0, xmax=b/2, linestyle="--", color='r', label="Skin")
+plt.title("Requirement of Second Moment of Area - Spanwise")
+plt.ylabel("Second Moment of Area $(m^4)$")
+plt.xlabel("Span (m)")
+plt.grid()
+plt.legend()
+plt.show()
 
 
 def Ixx_Cs(web_height, flange_length, section_thickness):
