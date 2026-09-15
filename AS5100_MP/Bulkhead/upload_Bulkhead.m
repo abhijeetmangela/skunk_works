@@ -70,7 +70,7 @@ f_2 = subs(Shear_2,s,h)
 
 Axial_3 = f_2 + V_y*t_skin*h/(4*I_total)*(b*s - s^2)
 Shear_3 = lift_distrib*s - n_2
-Moment_3 = lift_distrib*s^2/2 - m_2 - n_2*s
+Moment_3 = (lift_distrib*s^2/2 - m_2 - n_2*s)
 
 
 U1_bending = int( Moment_1^2/(2*E*I_total), s,0,L1)
@@ -90,7 +90,7 @@ U2_Shear = int( Shear_2^2/(2*G*As), s,0,L2)
 
 U2 = U2_bending + U2_axial + U2_Shear
 
-U3_bending = int( Moment_3^2/(2*E*I_total), s,0,L3)
+U3_bending =int( Moment_3^2/(2*E*I_total), s,0,L3)
 
 U3_axial = int( Axial_3^2/(2*E*As), s,0,L3)
 
